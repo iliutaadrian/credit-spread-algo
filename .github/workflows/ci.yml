@@ -16,6 +16,8 @@ jobs:
 
       - name: Setup Cloudflare Tunnel client
         uses: debugci/setup-cloudflared@v1.0.1
+
+      - name: Setup Cloudflare Tunnel client
         run: |
           nohup npx -y serve &
           nohup cloudflared tunnel --url ssh.iliutaadrian.cloud &
