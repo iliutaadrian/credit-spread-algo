@@ -22,7 +22,7 @@ jobs:
           PATH: ${{secrets.PATH}}
 
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key 
+          echo "$SSH_PRIVATE_KEY" > private_key 
           ssh -o StrictHostKeyChecking=no -i private_key root@ssh.iliutaadrian.cloud '
           cd /DATA/Credit-Spread_Algo &&
           git reset --hard &&
