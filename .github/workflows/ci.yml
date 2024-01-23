@@ -14,26 +14,28 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Setup Cloudflare Tunnel client
-        uses: debugci/setup-cloudflared@v1.0.1
-
-      - name: Setup Cloudflare Tunnel client
-        run: |
-          cloudflared tunnel --url ssh.iliutaadrian.cloud &
-
-      - name: Setup SSH
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
-          sudo chmod 600 private_key
-
-      - name: Execute Deployment
-        run: |
-          ssh -o StrictHostKeyChecking=no -i private_key root@ssh.iliutaadrian.cloud '
-            cd /DATA/Credit-Spread-Algo &&
-            git reset --hard &&
-            git checkout main &&
-            git pull origin main &&
-            docker-compose down &&
-            docker-compose rm -fsv &&
-            docker-compose up --build -d
+      - name: connect to remote server
+        uses: npgy/cloudflared-ssh-action@v2.0
+        with:
+          host: ${{ vars.HOST }}
+          username: root
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          commands: touch test.txt
+      #
+      # - name: Setup SSH
+      #   run: |
+      #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+      #     sudo chmod 600 private_key
+      #
+      # - name: Execute Deployment
+      #   run: |
+      #     ssh -o StrictHostKeyChecking=no -i private_key root@ssh.iliutaadrian.cloud '
+      #       cd /DATA/Credit-Spread-Algo &&
+      #       git reset --hard &&
+      #       git checkout main &&
+      #       git pull origin main &&
+      #       docker-compose down &&
+      #       docker-compose rm -fsv &&
+      #       docker-compose up --build -d
           '
