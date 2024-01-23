@@ -1,0 +1,9 @@
+version: "3"
+services:
+  my_app:
+    build: .
+    image: credit_spread
+    container_name: credit_spreads
+    command: python strategy.py
+    volumes:
+      - .:/app
