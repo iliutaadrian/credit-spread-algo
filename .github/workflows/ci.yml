@@ -24,12 +24,4 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key 
           which ssh
-          ssh -o StrictHostKeyChecking=no -i private_key root@ssh.iliutaadrian.cloud '
-          cd /DATA/Credit-Spread_Algo &&
-          git reset --hard &&
-          git checkout main &&
-          git pull origin main &&
-          docker-compose down &&
-          docker-compose rm -fsv &&
-          docker-compose up --build -d
-          '
+          ssh -o StrictHostKeyChecking=no -i private_key root@ssh.iliutaadrian.cloud
