@@ -4,6 +4,6 @@ services:
     build: .
     image: credit_spread
     container_name: credit_spreads
-    command: python strategy.py
+    command: python scripts/strategy.py
     volumes:
       - .:/app
