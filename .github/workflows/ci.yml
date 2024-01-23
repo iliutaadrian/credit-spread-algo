@@ -21,13 +21,12 @@ jobs:
           username: root
           private_key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          commands: touch test.txt
-      #
-      # - name: Setup SSH
-      #   run: |
-      #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
-      #     sudo chmod 600 private_key
-      #
+
+      - name: Deploy
+        commands: |
+          cd /DATA/Credit-Spread-Algo
+          touch test.txt
+
       # - name: Execute Deployment
       #   run: |
       #     ssh -o StrictHostKeyChecking=no -i private_key root@ssh.iliutaadrian.cloud '
