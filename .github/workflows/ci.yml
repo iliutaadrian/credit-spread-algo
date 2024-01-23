@@ -1,0 +1,30 @@
+# .github/workflows/ci.yml
+
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v2
+
+      - name: Build and Run Docker Compose
+        run: |
+          git checkout main &&
+          git pull origin main &&
+          docker-compose down &&
+          docker-compose rm -fsv &&
+          docker-compose up --build -d
+
+      - name: Clean up
+        run: docker-compose down
