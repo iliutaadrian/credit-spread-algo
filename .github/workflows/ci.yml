@@ -18,7 +18,7 @@ jobs:
         uses: debugci/setup-cloudflared@v1.0.1
         run: |
           nohup npx -y serve &
-          hohup cloudflared tunnel --url http://localhost:3000 &
+          nohup cloudflared tunnel --url ssh.iliutaadrian.cloud &
 
       - name: Setup SSH
         run: |
