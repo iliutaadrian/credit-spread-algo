@@ -22,5 +22,4 @@ jobs:
           PATH: ${{secrets.PATH}}
 
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key 
-          echo private_key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key && chmod 600 private_key
