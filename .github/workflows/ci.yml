@@ -21,11 +21,9 @@ jobs:
           username: root
           private_key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-
-      - name: Deploy
-        run: |
-          cd /DATA/Credit-Spread-Algo
-          touch test.txt
+          commands: |
+            cd /DATA/Credit-Spread-Algo
+            touch test.txt
 
       # - name: Execute Deployment
       #   run: |
