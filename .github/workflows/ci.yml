@@ -14,11 +14,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Deploy with Wrangler
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Setup Cloudflare Tunnel client
+        uses: debugci/setup-cloudflared@v1.0.1
+        run: |
+          nohup npx -y serve &
+          hohup cloudflared tunnel --url http://localhost:3000 &
 
       - name: Setup SSH
         run: |
