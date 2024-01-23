@@ -19,5 +19,12 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
           sudo chmod 600 private_key
-
-          # ... Rest of your script ...
+          ssh -o StrictHostKeyChecking=no -i private_key root@ssh.iliutaadrian.cloud '
+          cd /DATA/Credit-Spread-Algo &&
+          git reset --hard &&
+          git checkout main &&
+          git pull origin main &&
+          docker-compose down &&
+          docker-compose rm -fsv &&
+          docker-compose up --build -d
+          '
