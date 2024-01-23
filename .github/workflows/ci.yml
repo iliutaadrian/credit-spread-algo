@@ -6,29 +6,32 @@ on:
       - main
 
 jobs:
-  Production:
+  deploy:
     name: Deploy
     runs-on: ubuntu-latest
     environment: Production
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Deploy with Wrangler
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
+      - name: Setup SSH
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
           sudo chmod 600 private_key
+
+      - name: Execute Deployment
+        run: |
           ssh -o StrictHostKeyChecking=no -i private_key root@ssh.iliutaadrian.cloud '
-          cd /DATA/Credit-Spread-Algo &&
-          git reset --hard &&
-          git checkout main &&
-          git pull origin main &&
-          docker compose down &&
-          docker compose rm -fsv &&
-          docker compose up --build -d
+            cd /DATA/Credit-Spread-Algo &&
+            git reset --hard &&
+            git checkout main &&
+            git pull origin main &&
+            docker-compose down &&
+            docker-compose rm -fsv &&
+            docker-compose up --build -d
           '
