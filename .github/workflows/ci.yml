@@ -23,7 +23,12 @@ jobs:
           port: 22
           commands: |
             cd /DATA/Credit-Spread-Algo
-            touch test.txt
+            git reset --hard &&
+            git checkout main &&
+            git pull origin main &&
+            docker-compose down &&
+            docker-compose rm -fsv &&
+            docker-compose up --build -d
 
       # - name: Execute Deployment
       #   run: |
