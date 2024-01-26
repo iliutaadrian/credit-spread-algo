@@ -46,4 +46,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the application.
-CMD python scripts/strategy.py
+CMD python scripts/backtest.py > results.txt

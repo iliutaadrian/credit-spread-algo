@@ -41,38 +41,49 @@ class Strategy:
         self.win_rate = win_rate
         self.expiration_date_round = expiration_date_round
 
+    def print_strategy(self):
+        output = (
+            f"{self.name}\n"
+            f"Option Type: {self.option_type}\n"
+            f"Deviation: {self.deviation}\n"
+            f"Price Multiplier: {self.price_multiplier}\n"
+            f"Win Rate: {self.win_rate}\n"
+            f"Expiration Date Round: {self.expiration_date_round}\n"
+        )
+        return output
+
 
 strategies = [
-    Strategy(
-        "Trend Up",
-        "put",
-        {"up": 4, "down": 1},
-        0.97,
-        {"SPY": 98, "DIA": 89, "QQQ": 88},
-        9,
-    ),
-    Strategy(
-        "Trend Sideways",
-        "put",
-        {"up": 1, "down": -1},
-        0.98,
-        {"SPY": 89, "DIA": 90, "QQQ": 87},
-        14,
-    ),
-    Strategy(
-        "Dip buy",
-        "put",
-        {"up": -2, "down": -10},
-        0.987,
-        {"SPY": 90, "DIA": 90, "QQQ": 90},
-        8,
-    ),
+    # Strategy(
+    #     "Trend Up",
+    #     "put",
+    #     {"up": 4, "down": 1},
+    #     0.97,
+    #     {"SPY": 98, "DIA": 89, "QQQ": 88},
+    #     9,
+    # ),
+    # Strategy(
+    #     "Trend Sideways",
+    #     "put",
+    #     {"up": 1, "down": -1},
+    #     0.98,
+    #     {"SPY": 89, "DIA": 90, "QQQ": 87},
+    #     14,
+    # ),
+    # Strategy(
+    #     "Dip buy",
+    #     "put",
+    #     {"up": -2, "down": -10},
+    #     0.987,
+    #     {"SPY": 90, "DIA": 90, "QQQ": 90},
+    #     8,
+    # ),
     Strategy(
         "Over Extended",
         "call",
-        {"up": 10, "down": 2},
-        1.019,
-        {"SPY": 90, "DIA": 90, "QQQ": 90},
+        {"up": 4, "down": 2},
+        1.022,
+        {"SPY": 96, "DIA": 90, "QQQ": 90},
         9,
     ),
 ]
@@ -238,6 +249,19 @@ def run_all_strategies(ticker_data, specific_date):
         filtered_trades = remove_duplicates(trade_ideas, specific_date)
         if filtered_trades:
             all_trades.append(filtered_trades)
+
+    return all_trades
+
+
+def run_each_strategy(ticker_data, specific_date, strategy):
+    global environment
+    all_trades = []
+
+    trade_ideas = check_strategy(ticker_data, specific_date, strategy)
+
+    filtered_trades = remove_duplicates(trade_ideas, specific_date)
+    if filtered_trades:
+        all_trades.append(filtered_trades)
 
     return all_trades
 

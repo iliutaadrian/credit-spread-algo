@@ -1,8 +1,15 @@
 from datetime import datetime, timedelta
 
+import numpy as np
 import yfinance as yf
-
-from strategy import TickerData, Trade, run_all_strategies
+from strategy import (
+    Strategy,
+    TickerData,
+    Trade,
+    run_all_strategies,
+    run_each_strategy,
+    strategies,
+)
 
 
 def write_trades_to_file(daily_trades, output_file):
@@ -87,11 +94,14 @@ def process_trades(file_name):
     return output
 
 
-def backtest_strategy(ticker_data, trades):
+def backtest_strategy(ticker_data, trades, verbose=False):
     money = 0
     win = 0
     total = 0
     price_multiplier = []
+
+    if trades is None:
+        return
 
     for trade in trades:
         expiration_date = datetime.strptime(trade.expiration_date, "%Y-%m-%d %H:%M:%S")
@@ -126,34 +136,65 @@ def backtest_strategy(ticker_data, trades):
                 money += int(trade.min_credit)
                 win += 1
                 # trade.save_to_database(status="WIN")
-                print(
-                    f"{alerted_price} - {option_type} {expiration_date.strftime('%d %B %Y')} {int(sell_strike)} - {int(expiration_price)} - {sell_strike / alerted_price} - Passed"
-                )
+                if verbose:
+                    print(
+                        f"{alerted_price} - {option_type} {expiration_date.strftime('%d %B %Y')} {int(sell_strike)} - {int(expiration_price)} - {sell_strike / alerted_price} - Passed"
+                    )
             else:
                 money -= 100 - int(trade.min_credit)
                 # trade.save_to_database(status="LOSE")
-                print(
-                    f"{alerted_price} - {option_type} {expiration_date.strftime('%d %B %Y')} {int(sell_strike)} - {int(expiration_price)} - {sell_strike / alerted_price} - Failed"
-                )
+                if verbose:
+                    print(
+                        f"{alerted_price} - {option_type} {expiration_date.strftime('%d %B %Y')} {int(sell_strike)} - {int(expiration_price)} - {sell_strike / alerted_price} - Failed"
+                    )
 
-    print(money)
-    print(win)
-    print(total)
-    print(win / total * 100)
-    if price_multiplier:
-        print(sum(price_multiplier) / len(price_multiplier))
+    if verbose:
+        print(money)
+        print(win)
+        print(total)
+        print(win / total * 100)
+        if price_multiplier:
+            print(sum(price_multiplier) / len(price_multiplier))
+
+    return win / total * 100
+
+
+def backtrack_strategy():
+    # Define ranges
+    down_range = [2, 4]
+    up_range = [4, 5]
+    days_range = [7, 10]
+
+    strategies_backtest = []
+
+    # Iterate through all combinations of ranges
+    for down in np.arange(down_range[0], down_range[1], 0.1):
+        for up in np.arange(up_range[0], up_range[1], 0.1):
+            for days in range(days_range[0], days_range[1] + 1):
+                # Create a new Strategy object for each combination
+                strategy = Strategy(
+                    "Over Extended",
+                    "call",
+                    {"up": up, "down": down},
+                    1.022,
+                    {"SPY": 96, "DIA": 90, "QQQ": 90},
+                    days,
+                )
+                strategies_backtest.append(strategy)
+
+    return strategies_backtest
 
 
 def main_backtest(type):
     file_name = "spy_all.txt"
-    specific_date = datetime(2024, 1, 19)
+    specific_date = datetime(2024, 1, 26)
 
-    ticker_symbol = "QQQ"
+    ticker_symbol = "SPY"
     ticker_data = TickerData(ticker_symbol)
 
-    if type == "create":
+    if type == "all_strategies":
         all_trades = []
-        for i in range(0, 8000):
+        for i in range(0, 1000):
             all_trades.append(
                 run_all_strategies(ticker_data, specific_date - timedelta(days=i))
             )
@@ -162,11 +203,35 @@ def main_backtest(type):
         # elif type == "verify":
         trades = read_trades_from_file("spy_all.txt")
         backtest_strategy(ticker_data, trades)
-    elif type == "steal":
-        file_name = "input.txt"
-        output_data = process_trades(file_name)
-        print(output_data)
+    elif type == "each_strategy":
+        all_trades = []
+
+        strategy_results = []
+        generated_strategies = backtrack_strategy()
+        print(f"Generated {len(generated_strategies)} strategies")
+
+        for strategy in generated_strategies:
+            for i in range(0, 7000):
+                all_trades.append(
+                    run_each_strategy(
+                        ticker_data, specific_date - timedelta(days=i), strategy
+                    )
+                )
+            all_trades = [item for item in all_trades if item != []]
+            write_trades_to_file(all_trades, file_name)
+
+            trades = read_trades_from_file("spy_all.txt")
+            win_rate = backtest_strategy(ticker_data, trades)
+            strategy_results.append({"strategy": strategy, "win_rate": win_rate})
+
+        strategy_results = sorted(
+            strategy_results, key=lambda x: x["win_rate"], reverse=True
+        )
+        print("Top 3 Strategies:")
+        for result in strategy_results[:4]:
+            print(result["win_rate"])
+            print(result["strategy"].print_strategy())
 
 
 if __name__ == "__main__":
-    main_backtest("create")
+    main_backtest("each_strategy")

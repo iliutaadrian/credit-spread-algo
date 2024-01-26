@@ -1,9 +1,9 @@
 version: "3"
 services:
-  my_app:
-    build: .
-    image: credit_spreads
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: credit_spreads
-    command: python scripts/strategy.py
     volumes:
       - .:/app
