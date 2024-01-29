@@ -81,10 +81,10 @@ strategies = [
     Strategy(
         "Over Extended",
         "call",
-        {"up": 4, "down": 2},
+        {"up": 4.8, "down": 2.6},
         1.022,
         {"SPY": 96, "DIA": 90, "QQQ": 90},
-        9,
+        10,
     ),
 ]
 

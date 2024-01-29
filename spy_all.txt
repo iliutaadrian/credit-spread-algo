@@ -1,0 +1,9 @@
+Ticker: SPY
+Strategy Name: Over Extended
+Current Price: 488
+MA/STD: 440.8075506591797/20.23526019354397
+Date Alerted: 2024-01-25 00:00:00
+Expiration Date: 2024-02-09 00:00:00
+Option Type: call
+Strike Prices: 498
+Min Credit: 13

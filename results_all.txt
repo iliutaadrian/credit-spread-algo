@@ -1,0 +1,36 @@
+Over Extended
+1620/1770
+91.52542372881356
+Over Extended
+Option Type: call
+Deviation: {'up': 4.899999999999997, 'down': 2.6000000000000005}
+Price Multiplier: 1.022
+Win Rate: {'SPY': 96, 'DIA': 90, 'QQQ': 90}
+Expiration Date Round: 10
+
+1620/1770
+91.52542372881356
+Over Extended
+Option Type: call
+Deviation: {'up': 4.0, 'down': 2.7000000000000006}
+Price Multiplier: 1.022
+Win Rate: {'SPY': 96, 'DIA': 90, 'QQQ': 90}
+Expiration Date Round: 7
+
+1620/1770
+91.52542372881356
+Over Extended
+Option Type: call
+Deviation: {'up': 4.0, 'down': 2.7000000000000006}
+Price Multiplier: 1.022
+Win Rate: {'SPY': 96, 'DIA': 90, 'QQQ': 90}
+Expiration Date Round: 8
+
+1620/1770
+91.52542372881356
+Over Extended
+Option Type: call
+Deviation: {'up': 4.0, 'down': 2.7000000000000006}
+Price Multiplier: 1.022
+Win Rate: {'SPY': 96, 'DIA': 90, 'QQQ': 90}
+Expiration Date Round: 9

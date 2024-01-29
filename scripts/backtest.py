@@ -156,7 +156,10 @@ def backtest_strategy(ticker_data, trades, verbose=False):
         if price_multiplier:
             print(sum(price_multiplier) / len(price_multiplier))
 
-    return win / total * 100
+    if total == 0:
+        return 0, 0, 0
+
+    return win / total * 100, win, total
 
 
 def backtrack_strategy():
@@ -202,33 +205,41 @@ def main_backtest(type):
         write_trades_to_file(all_trades, file_name)
         # elif type == "verify":
         trades = read_trades_from_file("spy_all.txt")
-        backtest_strategy(ticker_data, trades)
+        backtest_strategy(ticker_data, trades, verbose=True)
     elif type == "each_strategy":
-        all_trades = []
-
         strategy_results = []
         generated_strategies = backtrack_strategy()
         print(f"Generated {len(generated_strategies)} strategies")
 
         for strategy in generated_strategies:
-            for i in range(0, 7000):
-                all_trades.append(
+            trades = []
+
+            for i in range(0, 10):
+                trades.append(
                     run_each_strategy(
                         ticker_data, specific_date - timedelta(days=i), strategy
                     )
                 )
-            all_trades = [item for item in all_trades if item != []]
-            write_trades_to_file(all_trades, file_name)
+            trades = [item for item in trades if item != []]
+            if len(trades) == 0:
+                strategy_results.append(
+                    {"strategy": strategy, "win_rate": 0, "win": 0, "total": 0}
+                )
+                continue
+
+            write_trades_to_file(trades, file_name)
 
             trades = read_trades_from_file("spy_all.txt")
-            win_rate = backtest_strategy(ticker_data, trades)
-            strategy_results.append({"strategy": strategy, "win_rate": win_rate})
+            win_rate, win, total = backtest_strategy(ticker_data, trades)
+            strategy_results.append(
+                {"strategy": strategy, "win_rate": win_rate, "win": win, "total": total}
+            )
 
         strategy_results = sorted(
-            strategy_results, key=lambda x: x["win_rate"], reverse=True
+            strategy_results, key=lambda x: x["win"], reverse=True
         )
-        print("Top 3 Strategies:")
         for result in strategy_results[:4]:
+            print(f"{result['win']}/{result['total']}")
             print(result["win_rate"])
             print(result["strategy"].print_strategy())
 
