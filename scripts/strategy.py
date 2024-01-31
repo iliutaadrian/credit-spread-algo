@@ -54,34 +54,34 @@ class Strategy:
 
 
 strategies = [
-    # Strategy(
-    #     "Trend Up",
-    #     "put",
-    #     {"up": 4, "down": 1},
-    #     0.97,
-    #     {"SPY": 98, "DIA": 89, "QQQ": 88},
-    #     9,
-    # ),
-    # Strategy(
-    #     "Trend Sideways",
-    #     "put",
-    #     {"up": 1, "down": -1},
-    #     0.98,
-    #     {"SPY": 89, "DIA": 90, "QQQ": 87},
-    #     14,
-    # ),
-    # Strategy(
-    #     "Dip buy",
-    #     "put",
-    #     {"up": -2, "down": -10},
-    #     0.987,
-    #     {"SPY": 90, "DIA": 90, "QQQ": 90},
-    #     8,
-    # ),
+    Strategy(
+        "Trend Up",
+        "put",
+        {"up": 3, "down": 0},
+        0.97,
+        {"SPY": 92, "QQQ": 89},
+        9,
+    ),
+    Strategy(
+        "Trend Sideways",
+        "put",
+        {"up": 1, "down": -1},
+        0.98,
+        {"SPY": 89, "DIA": 90, "QQQ": 87},
+        14,
+    ),
+    Strategy(
+        "Dip buy",
+        "put",
+        {"up": -2, "down": -10},
+        0.987,
+        {"SPY": 90, "DIA": 90, "QQQ": 90},
+        8,
+    ),
     Strategy(
         "Over Extended",
         "call",
-        {"up": 4.8, "down": 2.6},
+        {"up": 4, "down": 2},
         1.022,
         {"SPY": 96, "DIA": 90, "QQQ": 90},
         10,
@@ -269,7 +269,7 @@ def run_each_strategy(ticker_data, specific_date, strategy):
 def generate_notifications(trades):
     output = ""
     for trade in trades:
-        # output += trade.save_to_database()
+        output += trade.save_to_database()
         print(output)
 
     if output and environment == "PROD":
@@ -279,8 +279,6 @@ def generate_notifications(trades):
 
 def main():
     tickers = ["SPY", "QQQ"]
-    specific_date = datetime.now()
-    # specific_date = datetime(2024, 1, 22)
 
     for ticker_name in tickers:
         ticker = TickerData(ticker_name)

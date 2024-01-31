@@ -164,9 +164,9 @@ def backtest_strategy(ticker_data, trades, verbose=False):
 
 def backtrack_strategy():
     # Define ranges
-    down_range = [2, 4]
-    up_range = [4, 5]
-    days_range = [7, 10]
+    down_range = [-3, 1]
+    up_range = [1, 3]
+    days_range = [7, 15]
 
     strategies_backtest = []
 
@@ -176,11 +176,11 @@ def backtrack_strategy():
             for days in range(days_range[0], days_range[1] + 1):
                 # Create a new Strategy object for each combination
                 strategy = Strategy(
-                    "Over Extended",
-                    "call",
+                    "Trend Sideways",
+                    "put",
                     {"up": up, "down": down},
-                    1.022,
-                    {"SPY": 96, "DIA": 90, "QQQ": 90},
+                    0.98,
+                    {"SPY": 89, "DIA": 90, "QQQ": 87},
                     days,
                 )
                 strategies_backtest.append(strategy)
@@ -189,22 +189,25 @@ def backtrack_strategy():
 
 
 def main_backtest(type):
-    file_name = "spy_all.txt"
+    var = 1
+    options = ["SPY", "QQQ"]
+
+    file_name = f"{options[var]}.txt"
     specific_date = datetime(2024, 1, 26)
 
-    ticker_symbol = "SPY"
+    ticker_symbol = options[var]
     ticker_data = TickerData(ticker_symbol)
 
     if type == "all_strategies":
         all_trades = []
-        for i in range(0, 1000):
+        for i in range(0, 100):
             all_trades.append(
                 run_all_strategies(ticker_data, specific_date - timedelta(days=i))
             )
         all_trades = [item for item in all_trades if item != []]
         write_trades_to_file(all_trades, file_name)
         # elif type == "verify":
-        trades = read_trades_from_file("spy_all.txt")
+        trades = read_trades_from_file(file_name)
         backtest_strategy(ticker_data, trades, verbose=True)
     elif type == "each_strategy":
         strategy_results = []
@@ -214,7 +217,7 @@ def main_backtest(type):
         for strategy in generated_strategies:
             trades = []
 
-            for i in range(0, 10):
+            for i in range(0, 7000):
                 trades.append(
                     run_each_strategy(
                         ticker_data, specific_date - timedelta(days=i), strategy
@@ -229,16 +232,26 @@ def main_backtest(type):
 
             write_trades_to_file(trades, file_name)
 
-            trades = read_trades_from_file("spy_all.txt")
+            trades = read_trades_from_file(file_name)
             win_rate, win, total = backtest_strategy(ticker_data, trades)
             strategy_results.append(
                 {"strategy": strategy, "win_rate": win_rate, "win": win, "total": total}
             )
 
+        print("Top 3 Win:")
         strategy_results = sorted(
             strategy_results, key=lambda x: x["win"], reverse=True
         )
-        for result in strategy_results[:4]:
+        for result in strategy_results[:3]:
+            print(f"{result['win']}/{result['total']}")
+            print(result["win_rate"])
+            print(result["strategy"].print_strategy())
+
+        print("Top 3 Win %:")
+        strategy_results = sorted(
+            strategy_results, key=lambda x: x["win_rate"], reverse=True
+        )
+        for result in strategy_results[:3]:
             print(f"{result['win']}/{result['total']}")
             print(result["win_rate"])
             print(result["strategy"].print_strategy())
