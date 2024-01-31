@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: credit_spreads
+    image: credit_spreads_image
+    container_name: credit_spreads_container
     volumes:
       - .:/app

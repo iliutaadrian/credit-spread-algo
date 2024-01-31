@@ -279,6 +279,10 @@ def generate_notifications(trades):
 
 def main():
     tickers = ["SPY", "QQQ"]
+    specific_date = datetime.now()
+    print("--------------------")
+    print(specific_date.strftime("%d %B %Y"))
+    # specific_date = datetime(2024, 1, 25)
 
     for ticker_name in tickers:
         ticker = TickerData(ticker_name)
