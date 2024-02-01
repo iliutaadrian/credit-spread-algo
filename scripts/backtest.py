@@ -1,3 +1,4 @@
+import time
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -104,8 +105,13 @@ def backtest_strategy(ticker_data, trades, verbose=False):
         return
 
     for trade in trades:
-        expiration_date = datetime.strptime(trade.expiration_date, "%Y-%m-%d %H:%M:%S")
-        date_alerted = datetime.strptime(trade.date_alerted, "%Y-%m-%d %H:%M:%S")
+        # expiration_date = datetime.strptime(trade.expiration_date, "%Y-%m-%d %H:%M:%S")
+        # date_alerted = datetime.strptime(trade.date_alerted, "%Y-%m-%d %H:%M:%S")
+        # sell_strike = int(trade.strike_prices)
+        # option_type = trade.option_type
+
+        expiration_date = trade.expiration_date
+        date_alerted = trade.date_alerted
         sell_strike = int(trade.strike_prices)
         option_type = trade.option_type
 
@@ -174,6 +180,8 @@ def backtrack_strategy():
     for down in np.arange(down_range[0], down_range[1], 0.1):
         for up in np.arange(up_range[0], up_range[1], 0.1):
             for days in range(days_range[0], days_range[1] + 1):
+                if down >= up:
+                    continue
                 # Create a new Strategy object for each combination
                 strategy = Strategy(
                     "Trend Sideways",
@@ -189,7 +197,7 @@ def backtrack_strategy():
 
 
 def main_backtest(type):
-    var = 1
+    var = 0
     options = ["SPY", "QQQ"]
 
     file_name = f"{options[var]}.txt"
@@ -212,31 +220,56 @@ def main_backtest(type):
     elif type == "each_strategy":
         strategy_results = []
         generated_strategies = backtrack_strategy()
-        print(f"Generated {len(generated_strategies)} strategies")
+
+        strategy_num = 0
 
         for strategy in generated_strategies:
+            start_time = time.time()
+            strategy_num += 1
+
             trades = []
 
-            for i in range(0, 7000):
+            for i in range(0, 5000):
                 trades.append(
                     run_each_strategy(
                         ticker_data, specific_date - timedelta(days=i), strategy
                     )
                 )
             trades = [item for item in trades if item != []]
+
             if len(trades) == 0:
                 strategy_results.append(
                     {"strategy": strategy, "win_rate": 0, "win": 0, "total": 0}
                 )
                 continue
 
-            write_trades_to_file(trades, file_name)
+            parsed_trades = []
 
-            trades = read_trades_from_file(file_name)
-            win_rate, win, total = backtest_strategy(ticker_data, trades)
+            for daily_trade in trades:
+                for trade in daily_trade:
+                    parsed_trades.append(trade)
+
+            # write_trades_to_file(trades, file_name)
+            #
+            # trades = read_trades_from_file(file_name)
+            win_rate, win, total = backtest_strategy(ticker_data, parsed_trades)
             strategy_results.append(
                 {"strategy": strategy, "win_rate": win_rate, "win": win, "total": total}
             )
+
+            end_time = time.time()
+            print(
+                f"{strategy_num}/{len(generated_strategies)} -- {end_time - start_time}"
+            )
+
+            if strategy_num % 100 == 0:
+                strategy_results = sorted(
+                    strategy_results, key=lambda x: x["win"], reverse=True
+                )
+                for result in strategy_results[:1]:
+                    print(f"{result['win']}/{result['total']}")
+                    print(result["win_rate"])
+                    print(result["strategy"].print_strategy())
 
         print("Top 3 Win:")
         strategy_results = sorted(
