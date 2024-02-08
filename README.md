@@ -8,7 +8,7 @@ This algo is designed to provide simple trade alerts with a backtested method. D
 
 - **Option Type:** Put
 - **Deviation from 200ma:** +4
-- **Price Multiplier:** 0.97
+- **Price Multiplier:** 0.98
 - **Expiration Date Round:** 9
 
 **Explanation:** Identifies stocks with a current price 4 units higher than their 200-day Moving Average, suggesting an upward trend.
@@ -56,12 +56,17 @@ This algo is designed to provide simple trade alerts with a backtested method. D
 - Backtested with SPY and QQQ from 2002 for a 93% Winrate
 - Example of Telegram Notification:
   ```
-   **Ticker:** QQQ
-   **Strategy Name:** Over Extended
-   **Current Price:** 421
-   **MA/STD:** 365.57/26.19
-   **Date Alerted:** 2024-01-19
-   **Expiration Date:** 2024-02-02
-   **Option Type:** Call
-   **Strike Prices:** 429
+   Ticker: QQQ
+   Strategy Name: Over Extended
+   Current Price: 421
+   MA/STD: 365.57/26.19
+   Date Alerted: 2024-01-19
+   Expiration Date: 2024-02-02
+   Option Type: Call
+   Strike Prices: 429
   ```
+#### How to use
+docker compose up --build
+docker run -v ~/Sites/lux_credit_spreads_python/script_brain:/app credit_spreads_image 
+
+

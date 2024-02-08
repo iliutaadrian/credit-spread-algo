@@ -27,7 +27,8 @@ def write_trades_to_file(daily_trades, output_file):
                     f"Expiration Date: {trade.expiration_date}\n"
                     f"Option Type: {trade.option_type}\n"
                     f"Strike Prices: {trade.strike_prices}\n"
-                    f"Min Credit: {trade.min_credit}"
+                    f"Min Credit: {trade.min_credit}\n"
+                    f"Win Rate: {trade.win_rate}"
                 )
 
                 trade_data_list.append(trade_output)
@@ -62,6 +63,7 @@ def read_trades_from_file(file_name):
                 option_type=trade_fields.get("Option Type", ""),
                 strike_prices=trade_fields.get("Strike Prices", ""),
                 min_credit=trade_fields.get("Min Credit", ""),
+                win_rate=trade_fields.get("Win Rate", ""),
             )
 
             trades.append(trade_instance)
@@ -105,15 +107,15 @@ def backtest_strategy(ticker_data, trades, verbose=False):
         return
 
     for trade in trades:
-        # expiration_date = datetime.strptime(trade.expiration_date, "%Y-%m-%d %H:%M:%S")
-        # date_alerted = datetime.strptime(trade.date_alerted, "%Y-%m-%d %H:%M:%S")
-        # sell_strike = int(trade.strike_prices)
-        # option_type = trade.option_type
-
-        expiration_date = trade.expiration_date
-        date_alerted = trade.date_alerted
+        expiration_date = datetime.strptime(trade.expiration_date, "%Y-%m-%d %H:%M:%S")
+        date_alerted = datetime.strptime(trade.date_alerted, "%Y-%m-%d %H:%M:%S")
         sell_strike = int(trade.strike_prices)
         option_type = trade.option_type
+
+        # expiration_date = trade.expiration_date
+        # date_alerted = trade.date_alerted
+        # sell_strike = int(trade.strike_prices)
+        # option_type = trade.option_type
 
         if (
             expiration_date > datetime.now()
@@ -170,25 +172,25 @@ def backtest_strategy(ticker_data, trades, verbose=False):
 
 def backtrack_strategy():
     # Define ranges
-    down_range = [-3, 1]
-    up_range = [1, 3]
+    down_range = [0, 3]
+    up_range = [3, 6]
     days_range = [7, 15]
 
     strategies_backtest = []
 
     # Iterate through all combinations of ranges
-    for down in np.arange(down_range[0], down_range[1], 0.1):
-        for up in np.arange(up_range[0], up_range[1], 0.1):
+    for down in np.arange(down_range[0], down_range[1], 0.5):
+        for up in np.arange(up_range[0], up_range[1], 0.5):
             for days in range(days_range[0], days_range[1] + 1):
                 if down >= up:
                     continue
                 # Create a new Strategy object for each combination
                 strategy = Strategy(
-                    "Trend Sideways",
+                    "Trend Up",
                     "put",
                     {"up": up, "down": down},
                     0.98,
-                    {"SPY": 89, "DIA": 90, "QQQ": 87},
+                    {"SPY": 92, "QQQ": 89},
                     days,
                 )
                 strategies_backtest.append(strategy)
@@ -201,14 +203,14 @@ def main_backtest(type):
     options = ["SPY", "QQQ"]
 
     file_name = f"{options[var]}.txt"
-    specific_date = datetime(2024, 1, 26)
+    specific_date = datetime(2024, 2, 8)
 
     ticker_symbol = options[var]
     ticker_data = TickerData(ticker_symbol)
 
     if type == "all_strategies":
         all_trades = []
-        for i in range(0, 100):
+        for i in range(0, 9000):
             all_trades.append(
                 run_all_strategies(ticker_data, specific_date - timedelta(days=i))
             )
@@ -229,7 +231,7 @@ def main_backtest(type):
 
             trades = []
 
-            for i in range(0, 5000):
+            for i in range(0, 7000):
                 trades.append(
                     run_each_strategy(
                         ticker_data, specific_date - timedelta(days=i), strategy
@@ -259,7 +261,7 @@ def main_backtest(type):
 
             end_time = time.time()
             print(
-                f"{strategy_num}/{len(generated_strategies)} -- {end_time - start_time}"
+                f"{options[var]} -- {strategy_num}/{len(generated_strategies)} -- {end_time - start_time}"
             )
 
             if strategy_num % 100 == 0:
@@ -275,7 +277,7 @@ def main_backtest(type):
         strategy_results = sorted(
             strategy_results, key=lambda x: x["win"], reverse=True
         )
-        for result in strategy_results[:3]:
+        for result in strategy_results[:10]:
             print(f"{result['win']}/{result['total']}")
             print(result["win_rate"])
             print(result["strategy"].print_strategy())
@@ -284,11 +286,11 @@ def main_backtest(type):
         strategy_results = sorted(
             strategy_results, key=lambda x: x["win_rate"], reverse=True
         )
-        for result in strategy_results[:3]:
+        for result in strategy_results[:10]:
             print(f"{result['win']}/{result['total']}")
             print(result["win_rate"])
             print(result["strategy"].print_strategy())
 
 
 if __name__ == "__main__":
-    main_backtest("each_strategy")
+    main_backtest("all_strategies")

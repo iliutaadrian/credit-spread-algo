@@ -1,3 +1,4 @@
+import math
 import os
 from datetime import datetime, timedelta
 
@@ -58,33 +59,57 @@ strategies = [
         "Trend Up",
         "put",
         {"up": 3, "down": 0},
-        0.97,
-        {"SPY": 92, "QQQ": 89},
-        9,
+        0.98,
+        {"SPY": 85, "QQQ": 81},
+        8,
+    ),
+    Strategy(
+        "Trend Up",
+        "put",
+        {"up": 3, "down": 2},
+        0.98,
+        {"SPY": 97, "QQQ": 89},
+        8,
     ),
     Strategy(
         "Trend Sideways",
         "put",
-        {"up": 1, "down": -1},
+        {"up": 2.5, "down": -3},
         0.98,
-        {"SPY": 89, "DIA": 90, "QQQ": 87},
-        14,
+        {"SPY": 79, "QQQ": 72},
+        8,
     ),
     Strategy(
         "Dip buy",
         "put",
-        {"up": -2, "down": -10},
-        0.987,
-        {"SPY": 90, "DIA": 90, "QQQ": 90},
-        8,
+        {"up": -2.5, "down": -3.9},
+        0.98,
+        {"SPY": 77, "QQQ": 71},
+        15,
     ),
     Strategy(
         "Over Extended",
         "call",
-        {"up": 4, "down": 2},
+        {"up": 3, "down": 1},
         1.022,
-        {"SPY": 96, "DIA": 90, "QQQ": 90},
-        10,
+        {"SPY": 53, "QQQ": 20},
+        15,
+    ),
+    Strategy(
+        "LUX Trend Up",
+        "put",
+        {"up": 4.5, "down": -4.0},
+        0.98,
+        {"SPY": 76, "QQQ": 71},
+        9,
+    ),
+    Strategy(
+        "LUX Trend Down",
+        "call",
+        {"up": 4.5, "down": -5.0},
+        1.022,
+        {"SPY": 58, "QQQ": 31},
+        7,
     ),
 ]
 
@@ -139,6 +164,7 @@ class Trade(Base):
         option_type,
         strike_prices,
         min_credit,
+        win_rate,
         status=None,
     ):
         self.ticker = ticker
@@ -150,15 +176,16 @@ class Trade(Base):
         self.option_type = option_type
         self.strike_prices = strike_prices
         self.min_credit = min_credit
+        self.win_rate = win_rate
         self.status = status
 
     def print_and_generate_output(self):
         output = (
             f"Date Alerted: {self.date_alerted.strftime('%d %B %Y')}\n"
-            f"{self.ticker} - {self.strategy_name}\n"
+            f"{self.ticker} - {self.strategy_name} {self.win_rate}%\n"
             f"Trade: {self.option_type} {self.strike_prices}\n"
             f"Expiration: {self.expiration_date.strftime('%d %B %Y')}\n"
-            f"Minimum credit: ${self.min_credit}\n"
+            f"Minimum credit: ${self.min_credit}\n\n"
         )
         return output
 
@@ -196,7 +223,8 @@ def check_strategy(ticker, specific_date, strategy):
 
             trade = Trade(
                 ticker=ticker.ticker,
-                strategy_name=strategy.name,
+                strategy_name=f"{strategy.name}",
+                win_rate=strategy.win_rate[ticker.ticker],
                 current_price=int(current_price),
                 ma_std=f"{ma}/{std}",
                 date_alerted=date_alerted,
@@ -212,7 +240,7 @@ def check_strategy(ticker, specific_date, strategy):
 
 # calculate based on Long Term Expectancy
 def calculate_credit(win_rate):
-    return (100 - win_rate) * 2 + 5
+    return math.ceil(55 - 0.5 * win_rate + 1)
 
 
 def remove_duplicates(trades, date_limit):
@@ -239,17 +267,24 @@ def remove_duplicates(trades, date_limit):
     return oldest_trade
 
 
-def run_all_strategies(ticker_data, specific_date):
+def run_all_strategies(ticker_data, specific_date, duplicate_filter=True):
     global environment
     all_trades = []
+    filtered_trades = []
 
     for strategy in strategies:
         trade_ideas = check_strategy(ticker_data, specific_date, strategy)
 
-        filtered_trades = remove_duplicates(trade_ideas, specific_date)
-        if filtered_trades:
-            all_trades.append(filtered_trades)
+        if duplicate_filter:
+            filtered_trades = remove_duplicates(trade_ideas, specific_date)
+            if filtered_trades:
+                all_trades.append(filtered_trades)
+        else:
+            for trade_idea in trade_ideas:
+                if trade_idea.date_alerted == specific_date:
+                    all_trades.append(trade_idea)
 
+    all_trades = sorted(all_trades, key=lambda x: x.win_rate, reverse=True)
     return all_trades
 
 
@@ -270,7 +305,7 @@ def generate_notifications(trades):
     output = ""
     for trade in trades:
         output += trade.save_to_database()
-        print(output)
+    print(output)
 
     if output and environment == "PROD":
         bot = telebot.TeleBot(os.environ.get("TELEGRAM_TOKEN"))
@@ -278,15 +313,18 @@ def generate_notifications(trades):
 
 
 def main():
-    tickers = ["SPY", "QQQ"]
+    tickers = [
+        "SPY",
+        "QQQ",
+    ]
     specific_date = datetime.now()
     print("--------------------")
     print(specific_date.strftime("%d %B %Y"))
-    # specific_date = datetime(2024, 1, 25)
+    specific_date = datetime(2024, 2, 7)
 
     for ticker_name in tickers:
         ticker = TickerData(ticker_name)
-        trades = run_all_strategies(ticker, specific_date)
+        trades = run_all_strategies(ticker, specific_date, duplicate_filter=False)
         generate_notifications(trades)
 
 
