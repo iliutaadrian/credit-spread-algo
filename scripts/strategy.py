@@ -71,14 +71,14 @@ strategies = [
         {"SPY": 97, "QQQ": 89},
         8,
     ),
-    Strategy(
-        "Trend Sideways",
-        "put",
-        {"up": 2.5, "down": -3},
-        0.98,
-        {"SPY": 79, "QQQ": 72},
-        8,
-    ),
+    # Strategy(
+    #     "Trend Sideways",
+    #     "put",
+    #     {"up": 2.5, "down": -3},
+    #     0.98,
+    #     {"SPY": 79, "QQQ": 72},
+    #     8,
+    # ),
     Strategy(
         "Dip buy",
         "put",
@@ -103,14 +103,14 @@ strategies = [
         {"SPY": 76, "QQQ": 71},
         9,
     ),
-    Strategy(
-        "LUX Trend Down",
-        "call",
-        {"up": 4.5, "down": -5.0},
-        1.022,
-        {"SPY": 58, "QQQ": 31},
-        7,
-    ),
+    # Strategy(
+    #     "LUX Trend Down",
+    #     "call",
+    #     {"up": 4.5, "down": -5.0},
+    #     1.022,
+    #     {"SPY": 58, "QQQ": 31},
+    #     7,
+    # ),
 ]
 
 
@@ -124,7 +124,7 @@ class TickerData:
 
     def get_date_price(self, date):
         try:
-            return self.ticker_data.loc[date]["Close"]
+            return self.ticker_data.loc[date.strftime("%Y-%m-%d")]["Close"]
         except KeyError:
             return None
 
@@ -185,7 +185,7 @@ class Trade(Base):
             f"{self.ticker} - {self.strategy_name} {self.win_rate}%\n"
             f"Trade: {self.option_type} {self.strike_prices}\n"
             f"Expiration: {self.expiration_date.strftime('%d %B %Y')}\n"
-            f"Minimum credit: ${self.min_credit}\n\n"
+            f"Minimum credit: ${self.min_credit}\n"
         )
         return output
 
@@ -315,16 +315,17 @@ def generate_notifications(trades):
 def main():
     tickers = [
         "SPY",
-        "QQQ",
+        # "QQQ",
     ]
-    specific_date = datetime.now()
+    specific_date = datetime.now().date()
+    specific_date = datetime(2024, 2, 15)
+
     print("--------------------")
     print(specific_date.strftime("%d %B %Y"))
-    specific_date = datetime(2024, 2, 7)
 
     for ticker_name in tickers:
         ticker = TickerData(ticker_name)
-        trades = run_all_strategies(ticker, specific_date, duplicate_filter=False)
+        trades = run_all_strategies(ticker, specific_date, duplicate_filter=True)
         generate_notifications(trades)
 
 
