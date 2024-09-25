@@ -107,10 +107,15 @@ def backtest_strategy(ticker_data, trades, verbose=False):
         return
 
     for trade in trades:
-        expiration_date = datetime.strptime(trade.expiration_date, "%Y-%m-%d %H:%M:%S")
-        date_alerted = datetime.strptime(trade.date_alerted, "%Y-%m-%d %H:%M:%S")
-        sell_strike = float(trade.strike_prices)
+        expiration_date = trade.expiration_date
+        date_alerted = trade.date_alerted
+        sell_strike = int(trade.strike_prices)
         option_type = trade.option_type
+
+        # expiration_date = datetime.strptime(trade.expiration_date, "%Y-%m-%d %H:%M:%S")
+        # date_alerted = datetime.strptime(trade.date_alerted, "%Y-%m-%d %H:%M:%S")
+        # sell_strike = float(trade.strike_prices)
+        # option_type = trade.option_type
 
         if (
             expiration_date > datetime.now()
@@ -207,8 +212,8 @@ def backtest_strategy(ticker_data, trades, verbose=False):
 
 def backtrack_strategy():
     # Define ranges
-    down_range = [0, 3]
-    up_range = [3, 6]
+    down_range = [-5, 5]
+    up_range = [-5, 5]
     days_range = [7, 15]
 
     strategies_backtest = []
@@ -225,7 +230,7 @@ def backtrack_strategy():
                     "put",
                     {"up": up, "down": down},
                     0.98,
-                    {"SPY": 92, "QQQ": 89},
+                    {"SPY": 92, "QQQ": 89, "VTI": 85},
                     days,
                 )
                 strategies_backtest.append(strategy)
@@ -327,4 +332,4 @@ def main_backtest(type):
 
 
 if __name__ == "__main__":
-    main_backtest("all_strategies")
+    main_backtest("each_strategy")
