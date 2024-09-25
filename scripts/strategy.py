@@ -56,61 +56,13 @@ class Strategy:
 
 strategies = [
     Strategy(
-        "Trend Up",
-        "put",
-        {"up": 3, "down": 0},
-        0.98,
-        {"SPY": 85, "QQQ": 81},
-        8,
-    ),
-    Strategy(
-        "Trend Up",
-        "put",
-        {"up": 3, "down": 2},
-        0.98,
-        {"SPY": 97, "QQQ": 89},
-        8,
-    ),
-    # Strategy(
-    #     "Trend Sideways",
-    #     "put",
-    #     {"up": 2.5, "down": -3},
-    #     0.98,
-    #     {"SPY": 79, "QQQ": 72},
-    #     8,
-    # ),
-    Strategy(
-        "Dip buy",
-        "put",
-        {"up": -2.5, "down": -3.9},
-        0.98,
-        {"SPY": 77, "QQQ": 71},
-        15,
-    ),
-    Strategy(
-        "Over Extended",
-        "call",
-        {"up": 3, "down": 1},
-        1.022,
-        {"SPY": 53, "QQQ": 20},
-        15,
-    ),
-    Strategy(
         "LUX Trend Up",
         "put",
         {"up": 4.5, "down": -4.0},
         0.98,
-        {"SPY": 76, "QQQ": 71},
+        {"SPY": 82, "QQQ": 71, "VTI": 85},
         9,
     ),
-    # Strategy(
-    #     "LUX Trend Down",
-    #     "call",
-    #     {"up": 4.5, "down": -5.0},
-    #     1.022,
-    #     {"SPY": 58, "QQQ": 31},
-    #     7,
-    # ),
 ]
 
 
@@ -138,9 +90,7 @@ class TickerData:
             return None, None
 
 
-class Trade(Base):
-    __tablename__ = "tradeideas"
-
+class Trade():
     id = Column(Integer, primary_key=True)
     ticker = Column(String(255), nullable=False)
     strategy_name = Column(String(255), nullable=False)
@@ -190,10 +140,6 @@ class Trade(Base):
         return output
 
     def save_to_database(self):
-        # session = get_database_session()
-        # session.add(self)
-        # session.commit()
-
         return self.print_and_generate_output()
 
 
@@ -314,18 +260,19 @@ def generate_notifications(trades):
 
 def main():
     tickers = [
+        "VTI",
         "SPY",
         # "QQQ",
     ]
     specific_date = datetime.now().date()
-    specific_date = datetime(2024, 2, 15)
+    # specific_date = datetime(2002, 5, 5)
 
     print("--------------------")
     print(specific_date.strftime("%d %B %Y"))
 
     for ticker_name in tickers:
         ticker = TickerData(ticker_name)
-        trades = run_all_strategies(ticker, specific_date, duplicate_filter=True)
+        trades = run_all_strategies(ticker, specific_date, duplicate_filter=False)
         generate_notifications(trades)
 
 
