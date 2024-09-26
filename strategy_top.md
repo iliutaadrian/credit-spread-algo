@@ -1,3 +1,54 @@
+### VTI
+860/1000
+Win Rate: 86.00%
+Trend Up
+Option Type: put
+Deviation: {'up': np.float64(3.5), 'down': np.float64(-5.0)}
+Price Multiplier: 0.98
+Win Rate: {'SPY': 92, 'QQQ': 89, 'VTI': 85}
+Expiration Date Round: 8
+
+142/155
+Win Rate: 91.61%
+Trend Up
+Option Type: put
+Deviation: {'up': np.float64(3.5), 'down': np.float64(2.0)}
+Price Multiplier: 0.98
+Win Rate: {'SPY': 92, 'QQQ': 89, 'VTI': 85}
+Expiration Date Round: 10
+
+
+### SPY
+854/1004
+Win Rate: 85.06%
+Trend Up
+Option Type: put
+Deviation: {'up': np.float64(3.5), 'down': np.float64(-5.0)}
+Price Multiplier: 0.98
+Win Rate: {'SPY': 92, 'QQQ': 89, 'VTI': 85}
+Expiration Date Round: 8
+
+162/172
+Win Rate: 94.19%
+Trend Up
+Option Type: put
+Deviation: {'up': np.float64(4.5), 'down': np.float64(2.0)}
+Price Multiplier: 0.98
+Win Rate: {'SPY': 92, 'QQQ': 89, 'VTI': 85}
+Expiration Date Round: 9
+
+### QQQ
+843/1001
+Win Rate: 84.22%
+Trend Up
+Option Type: put
+Deviation: {'up': np.float64(4.5), 'down': np.float64(-3.0)}
+Price Multiplier: 0.98
+Win Rate: {'SPY': 92, 'QQQ': 89, 'VTI': 85}
+Expiration Date Round: 8
+
+
+
 ### Trend Up
 
 #### 7000 days SPY

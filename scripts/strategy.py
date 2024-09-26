@@ -56,12 +56,20 @@ class Strategy:
 
 strategies = [
     Strategy(
+        "Trend Up",
+        "put",
+        {"up": 3.5, "down": -5},
+        0.98,
+        {"SPY": 83, "VTI": 86},
+        8,
+    ),
+    Strategy(
         "LUX Trend Up",
         "put",
-        {"up": 4.5, "down": -4.0},
+        {"up": 3.5, "down": 2},
         0.98,
-        {"SPY": 82, "QQQ": 71, "VTI": 85},
-        9,
+        {"SPY": 82, "QQQ": 71, "VTI": 91},
+        10,
     ),
 ]
 
@@ -261,7 +269,7 @@ def generate_notifications(trades):
 def main():
     tickers = [
         "VTI",
-        "SPY",
+        # "SPY",
         # "QQQ",
     ]
     specific_date = datetime.now().date()

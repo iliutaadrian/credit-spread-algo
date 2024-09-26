@@ -107,14 +107,15 @@ def backtest_strategy(ticker_data, trades, verbose=False):
         return
 
     for trade in trades:
-        expiration_date = trade.expiration_date
-        date_alerted = trade.date_alerted
-        sell_strike = int(trade.strike_prices)
+
+        expiration_date = datetime.strptime(trade.expiration_date, "%Y-%m-%d %H:%M:%S")
+        date_alerted = datetime.strptime(trade.date_alerted, "%Y-%m-%d %H:%M:%S")
+        sell_strike = float(trade.strike_prices)
         option_type = trade.option_type
 
-        # expiration_date = datetime.strptime(trade.expiration_date, "%Y-%m-%d %H:%M:%S")
-        # date_alerted = datetime.strptime(trade.date_alerted, "%Y-%m-%d %H:%M:%S")
-        # sell_strike = float(trade.strike_prices)
+        # expiration_date = trade.expiration_date
+        # date_alerted = trade.date_alerted
+        # sell_strike = int(trade.strike_prices)
         # option_type = trade.option_type
 
         if (
@@ -149,13 +150,13 @@ def backtest_strategy(ticker_data, trades, verbose=False):
                 win += 1
                 if verbose:
                     print(
-                        f"{alerted_price} - {option_type} {expiration_date.strftime('%d %B %Y')} {sell_strike} - {expiration_price} - {sell_strike / alerted_price} - Passed"
+                        f"{alerted_price:.2f} - {option_type} {expiration_date.strftime('%d %B %Y')} {sell_strike:.2f} - {expiration_price} - Passed"
                     )
             else:
                 # Print failed transaction details
                 if verbose:
                     print(
-                        f"{alerted_price} - {option_type} {expiration_date.strftime('%d %B %Y')} {sell_strike} - {expiration_price} - {sell_strike / alerted_price} - FAILED"
+                        f"{alerted_price:.2f} - {option_type} {expiration_date.strftime('%d %B %Y')} {sell_strike:.2f} - {expiration_price} - FAILED"
                     )
 
                 # Implement wheel strategy for failed puts
@@ -164,6 +165,7 @@ def backtest_strategy(ticker_data, trades, verbose=False):
                     current_date = expiration_date
                     cost_basis = sell_strike
                     total_credit = float(trade.min_credit)
+                    borrowed_shares_cost = 0
 
                     while True:
                         days_to_profit += 7  # Assume weekly options
@@ -181,21 +183,27 @@ def backtest_strategy(ticker_data, trades, verbose=False):
                         if current_price is None:
                             break  # End of available data
 
+                        # Calculate borrowing fee for the week
+                        borrowing_fee = (cost_basis * 100 * 0.06 * 7) / 365  # 6% per year
+                        borrowed_shares_cost += borrowing_fee
+
                         # Sell a call at strike price + 1
-                        call_strike = math.ceil(cost_basis) + 1
-                        call_credit = 14  # Fixed credit amount, you may want to make this dynamic
+                        call_strike = math.ceil(cost_basis) + 5
+                        call_credit = 50  # Fixed credit amount, you may want to make this dynamic
                         total_credit += call_credit
 
                         if current_price >= call_strike:
                             # Call is assigned, exit the position
-                            profit = (call_strike - cost_basis) * 100 + total_credit
+                            profit = (call_strike - cost_basis) * 100 + total_credit - borrowed_shares_cost
                             money += profit
                             if verbose:
                                 print(f"Wheel strategy: {days_to_profit} days to profit. Total profit: ${profit:.2f}")
+                                print(f"Borrowed shares cost: ${borrowed_shares_cost:.2f}")
                             break
 
                     if current_price is None and verbose:
                         print(f"Wheel strategy: Position not closed due to lack of data. Days held: {days_to_profit}")
+                        print(f"Borrowed shares cost: ${borrowed_shares_cost:.2f}")
 
     if verbose:
         print("money: ", money)
@@ -209,7 +217,6 @@ def backtest_strategy(ticker_data, trades, verbose=False):
         return 0, 0, 0
 
     return win / total * 100, win, total
-
 def backtrack_strategy():
     # Define ranges
     down_range = [-5, 5]
@@ -332,4 +339,4 @@ def main_backtest(type):
 
 
 if __name__ == "__main__":
-    main_backtest("each_strategy")
+    main_backtest("all_strategies")
