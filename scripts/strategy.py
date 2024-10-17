@@ -259,6 +259,7 @@ def generate_notifications(trades):
     output = ""
     for trade in trades:
         output += trade.save_to_database()
+        output += "\n"
     print(output)
 
     if output and environment == "PROD":

@@ -150,13 +150,13 @@ def backtest_strategy(ticker_data, trades, verbose=False):
                 win += 1
                 if verbose:
                     print(
-                        f"{alerted_price:.2f} - {option_type} {expiration_date.strftime('%d %B %Y')} {sell_strike:.2f} - {expiration_price} - Passed"
+                            f"{alerted_price:.2f} - {option_type} {expiration_date.strftime('%d %B %Y')} {sell_strike:.2f} - {expiration_price:.2f} - Passed"
                     )
             else:
                 # Print failed transaction details
                 if verbose:
                     print(
-                        f"{alerted_price:.2f} - {option_type} {expiration_date.strftime('%d %B %Y')} {sell_strike:.2f} - {expiration_price} - FAILED"
+                        f"{alerted_price:.2f} - {option_type} {expiration_date.strftime('%d %B %Y')} {sell_strike:.2f} - {expiration_price:.2f} - FAILED"
                     )
 
                 # Implement wheel strategy for failed puts
@@ -249,14 +249,14 @@ def main_backtest(type):
     options = ["VTI", "QQQ"]
 
     file_name = f"{options[var]}.txt"
-    specific_date = datetime(2024, 9, 25)
+    specific_date = datetime(2024, 10, 17)
 
     ticker_symbol = options[var]
     ticker_data = TickerData(ticker_symbol)
 
     if type == "all_strategies":
         all_trades = []
-        for i in range(0, 9000):
+        for i in range(0, 200):
             all_trades.append(
                 run_all_strategies(ticker_data, specific_date - timedelta(days=i))
             )
