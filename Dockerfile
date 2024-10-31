@@ -4,7 +4,7 @@
 # pwd
 #docker run -v .:/app credit_spreads 
 
-ARG PYTHON_VERSION=3.11.7
+ARG PYTHON_VERSION=3.13.0
 FROM python:${PYTHON_VERSION}-slim as base
 
 # Prevents Python from writing pyc files.
@@ -28,4 +28,4 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY . .
 
 # Run the application.
-CMD python scripts/strategy.py >> output.txt
+CMD python scriptsv2/main.py run >> output.txt
