@@ -5,6 +5,7 @@ import telebot
 import yfinance as yf
 from dotenv import load_dotenv
 import math
+import pandas as pd
 
 load_dotenv()
 environment = os.environ.get("ENV")
@@ -46,20 +47,26 @@ strategies = [
 class TickerData:
     def __init__(self, ticker):
         self.ticker = ticker
+        # Download data and localize it to remove timezone information
         self.ticker_data = yf.download(ticker)
+        self.ticker_data.index = self.ticker_data.index.tz_localize(None)
 
     def get_last_price(self):
         return self.ticker_data["Close"][-1]
 
     def get_date_price(self, date):
         try:
-            return self.ticker_data.loc[date.strftime("%Y-%m-%d")]["Close"]
+            # Convert date to string format for lookup
+            date_str = date.strftime("%Y-%m-%d")
+            return self.ticker_data.loc[date_str]["Close"]
         except KeyError:
             return None
 
     def calculate_ma_std(self, date):
         try:
-            rolling_data = self.ticker_data["Close"].loc[:date].rolling(window=200)
+            # Convert date to string format for slicing
+            date_str = date.strftime("%Y-%m-%d")
+            rolling_data = self.ticker_data["Close"].loc[:date_str].rolling(window=200)
             ma = rolling_data.mean().iloc[-1]
             std = rolling_data.std().iloc[-1]
             return ma, std
@@ -99,13 +106,19 @@ def check_strategy(ticker, specific_date, strategy):
         if current_price is None:
             continue
 
+        # Extract scalar values for comparison
+        if isinstance(current_price, (pd.Series, pd.DataFrame)):
+            current_price = float(current_price)
+
         ma, std = ticker.calculate_ma_std(date_alerted)
         if ma is None or std is None:
             continue
 
-        upper_boundary = ma + strategy.deviation["up"] * std
-        lower_boundary = ma + strategy.deviation["down"] * std
+        # Calculate boundaries using scalar values
+        upper_boundary = float(ma + strategy.deviation["up"] * std)
+        lower_boundary = float(ma + strategy.deviation["down"] * std)
 
+        # Compare scalar values
         if lower_boundary <= current_price <= upper_boundary:
             strike_price = current_price * strategy.price_multiplier
             sell_strike = math.floor(strike_price/5)*5 
@@ -128,7 +141,6 @@ def check_strategy(ticker, specific_date, strategy):
             trades.append(trade)
 
     return trades
-
 
 def run_all_strategies(ticker_data, specific_date, duplicate_filter=True):
     all_trades = []
@@ -173,15 +185,14 @@ def remove_duplicates(trades, date_limit):
 
 
 def generate_alert(trades):
-    output = f"Recommended credit: $0.56 (per $5 spread)\n\n"
-
+    output = ""
     for trade in trades:
         output += (
-            f"Date Alerted: {trade.date_alerted.strftime('%d %B %Y')}\n"
             f"{trade.ticker} - {trade.strategy_name}\n"
             f"Trade: {trade.option_type} {trade.strike_price}\n"
             f"Expiration: {trade.expiration_date.strftime('%d %B %Y')}\n"
         )
+        output += f"Recommended credit: $0.56 (per $5 spread)\n"
         output += "\n" if len(trades) - 1 > 2 else ""
         
     print(output)
@@ -201,7 +212,7 @@ def main():
 
     for ticker_name in tickers:
         ticker = TickerData(ticker_name)
-        trades = run_all_strategies(ticker, specific_date, duplicate_filter=True)
+        trades = run_all_strategies(ticker, specific_date, duplicate_filter=False)
         generate_alert(trades)
 
 if __name__ == "__main__":
