@@ -1,0 +1,329 @@
+Ticker: VTI
+Strategy Name: LUX Trend Up
+Current Price: 288
+MA/STD: 260.79295013427736/13.38014627864498
+Date Alerted: 2024-10-14 00:00:00
+Expiration Date: 2024-10-25 00:00:00
+Option Type: put
+Strike Prices: 282
+Min Credit: 11
+Win Rate: 91
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 286
+MA/STD: 260.5425001525879/13.330630157854847
+Date Alerted: 2024-10-11 00:00:00
+Expiration Date: 2024-10-25 00:00:00
+Option Type: put
+Strike Prices: 280
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 282
+MA/STD: 259.37185012817383/13.32188855378113
+Date Alerted: 2024-10-04 00:00:00
+Expiration Date: 2024-10-18 00:00:00
+Option Type: put
+Strike Prices: 277
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 282
+MA/STD: 258.1968501281738/13.399316135581415
+Date Alerted: 2024-09-27 00:00:00
+Expiration Date: 2024-10-11 00:00:00
+Option Type: put
+Strike Prices: 276
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 281
+MA/STD: 256.8320500946045/13.640891074078787
+Date Alerted: 2024-09-20 00:00:00
+Expiration Date: 2024-10-04 00:00:00
+Option Type: put
+Strike Prices: 275
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 277
+MA/STD: 255.51035026550292/13.953204078256613
+Date Alerted: 2024-09-13 00:00:00
+Expiration Date: 2024-09-27 00:00:00
+Option Type: put
+Strike Prices: 271
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 266
+MA/STD: 254.30735023498536/14.450660888373472
+Date Alerted: 2024-09-06 00:00:00
+Expiration Date: 2024-09-20 00:00:00
+Option Type: put
+Strike Prices: 261
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 278
+MA/STD: 253.3521501159668/14.92558063016026
+Date Alerted: 2024-08-30 00:00:00
+Expiration Date: 2024-09-13 00:00:00
+Option Type: put
+Strike Prices: 272
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 277
+MA/STD: 251.8407999420166/15.53485889892766
+Date Alerted: 2024-08-23 00:00:00
+Expiration Date: 2024-09-06 00:00:00
+Option Type: put
+Strike Prices: 272
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 273
+MA/STD: 250.24365005493163/16.26882725691414
+Date Alerted: 2024-08-16 00:00:00
+Expiration Date: 2024-08-30 00:00:00
+Option Type: put
+Strike Prices: 267
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 262
+MA/STD: 248.66960006713867/17.41213222235732
+Date Alerted: 2024-08-09 00:00:00
+Expiration Date: 2024-08-23 00:00:00
+Option Type: put
+Strike Prices: 257
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 262
+MA/STD: 247.48644996643065/18.281378030344868
+Date Alerted: 2024-08-02 00:00:00
+Expiration Date: 2024-08-16 00:00:00
+Option Type: put
+Strike Prices: 257
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 269
+MA/STD: 246.1580500793457/18.635323113743674
+Date Alerted: 2024-07-26 00:00:00
+Expiration Date: 2024-08-09 00:00:00
+Option Type: put
+Strike Prices: 264
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 271
+MA/STD: 244.68815002441406/18.989631877395766
+Date Alerted: 2024-07-19 00:00:00
+Expiration Date: 2024-08-02 00:00:00
+Option Type: put
+Strike Prices: 265
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 275
+MA/STD: 243.11669998168946/19.013679691511737
+Date Alerted: 2024-07-12 00:00:00
+Expiration Date: 2024-07-26 00:00:00
+Option Type: put
+Strike Prices: 270
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 272
+MA/STD: 241.6757999420166/18.812837302695502
+Date Alerted: 2024-07-05 00:00:00
+Expiration Date: 2024-07-19 00:00:00
+Option Type: put
+Strike Prices: 266
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 267
+MA/STD: 240.71090003967285/18.562962085663656
+Date Alerted: 2024-06-28 00:00:00
+Expiration Date: 2024-07-12 00:00:00
+Option Type: put
+Strike Prices: 262
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 268
+MA/STD: 239.54519996643066/18.24445026021255
+Date Alerted: 2024-06-21 00:00:00
+Expiration Date: 2024-07-05 00:00:00
+Option Type: put
+Strike Prices: 262
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 266
+MA/STD: 238.65014991760253/17.880261233791167
+Date Alerted: 2024-06-14 00:00:00
+Expiration Date: 2024-06-28 00:00:00
+Option Type: put
+Strike Prices: 261
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 262
+MA/STD: 237.50254997253418/17.578465044473855
+Date Alerted: 2024-06-07 00:00:00
+Expiration Date: 2024-06-21 00:00:00
+Option Type: put
+Strike Prices: 257
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 260
+MA/STD: 236.38839988708497/17.385880280343343
+Date Alerted: 2024-05-31 00:00:00
+Expiration Date: 2024-06-14 00:00:00
+Option Type: put
+Strike Prices: 255
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 261
+MA/STD: 235.62139976501464/17.165036417134267
+Date Alerted: 2024-05-24 00:00:00
+Expiration Date: 2024-06-07 00:00:00
+Option Type: put
+Strike Prices: 256
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 262
+MA/STD: 234.65709991455077/16.734428283982716
+Date Alerted: 2024-05-17 00:00:00
+Expiration Date: 2024-05-31 00:00:00
+Option Type: put
+Strike Prices: 257
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 258
+MA/STD: 233.80229988098145/16.23474613052931
+Date Alerted: 2024-05-10 00:00:00
+Expiration Date: 2024-05-24 00:00:00
+Option Type: put
+Strike Prices: 252
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 253
+MA/STD: 233.03449996948243/15.839865699991574
+Date Alerted: 2024-05-03 00:00:00
+Expiration Date: 2024-05-17 00:00:00
+Option Type: put
+Strike Prices: 248
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 251
+MA/STD: 232.40119987487793/15.622586278987908
+Date Alerted: 2024-04-26 00:00:00
+Expiration Date: 2024-05-10 00:00:00
+Option Type: put
+Strike Prices: 246
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 245
+MA/STD: 231.6428498840332/15.48426307746861
+Date Alerted: 2024-04-19 00:00:00
+Expiration Date: 2024-05-03 00:00:00
+Option Type: put
+Strike Prices: 240
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 253
+MA/STD: 230.92974998474122/15.378409872930645
+Date Alerted: 2024-04-12 00:00:00
+Expiration Date: 2024-04-26 00:00:00
+Option Type: put
+Strike Prices: 247
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 257
+MA/STD: 229.93209983825685/15.006476936364894
+Date Alerted: 2024-04-05 00:00:00
+Expiration Date: 2024-04-19 00:00:00
+Option Type: put
+Strike Prices: 252
+Min Credit: 13
+Win Rate: 86
+---
+Ticker: VTI
+Strategy Name: Trend Up
+Current Price: 259
+MA/STD: 229.17299980163574/14.585021872250719
+Date Alerted: 2024-04-01 00:00:00
+Expiration Date: 2024-04-12 00:00:00
+Option Type: put
+Strike Prices: 254
+Min Credit: 13
+Win Rate: 86

@@ -2,3 +2,7 @@ telebot
 yfinance
 python-dotenv
 SQLAlchemy
+matplotlib
+yfinance 
+pandas
+
