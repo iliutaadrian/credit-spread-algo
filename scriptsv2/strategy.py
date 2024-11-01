@@ -192,7 +192,7 @@ def generate_alert(trades):
             f"Trade: {trade.option_type} {trade.strike_price}\n"
             f"Expiration: {trade.expiration_date.strftime('%d %B %Y')}\n"
         )
-        output += f"Recommended credit: $0.56 (per $5 spread)\n"
+        output += f"Credit: $0.56 (per $5 spread)\n"
         output += "\n" if len(trades) - 1 > 2 else ""
         
     print(output)
