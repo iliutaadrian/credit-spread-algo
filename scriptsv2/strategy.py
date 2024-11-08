@@ -184,17 +184,74 @@ def remove_duplicates(trades, date_limit):
     return oldest_trade
 
 
-def generate_alert(trades):
+def calculate_optimal_position(bankroll, win_rate=92.0):
+    """
+    Calculate optimal position size and credit using Kelly Criterion
+    
+    Args:
+        bankroll (float): Current portfolio value
+        win_rate (float): Strategy win rate percentage (default 92%)
+    
+    Returns:
+        dict: Position details including spreads and credit amount
+    """
+    # Convert win rate to probability
+    p = win_rate / 100
+    q = 1 - p
+    
+    credit = 0.50
+    win_amount = 50
+    loss_amount = 450
+    
+    # Calculate Kelly percentage
+    b = win_amount / loss_amount  # Odds ratio
+    kelly = p - (q / b)
+    
+    # Use half-Kelly for safety
+    kelly = max(0, kelly) * 1
+    
+    # Calculate optimal risk amount
+    optimal_risk = bankroll * kelly
+    
+    # Calculate number of spreads (rounded down)
+    num_spreads = int(optimal_risk / loss_amount)
+    num_spreads = max(1, min(num_spreads, 20))  # Cap between 1 and 20 spreads
+    
+    return {
+        'credit': credit,
+        'num_spreads': num_spreads,
+        'potential_profit': num_spreads * (credit * 100 - 1),  # Subtract commission
+        'max_loss': num_spreads * (loss_amount + 1),  # Add commission
+        'risk_amount': optimal_risk,
+        'risk_percentage': kelly * 100
+    }
+
+def generate_alert(trades, bankroll=5000):
+    """
+    Generate trade alert with position sizing recommendations
+    
+    Args:
+        trades (list): List of trade opportunities
+        bankroll (float): Current portfolio value
+    """
+    if not trades:
+        return
+        
+    # Get position sizing for the strategy
+    position = calculate_optimal_position(bankroll)
+    
     output = ""
     for trade in trades:
         output += (
             f"{trade.ticker} - {trade.strategy_name}\n"
             f"Trade: {trade.option_type} {trade.strike_price}\n"
             f"Expiration: {trade.expiration_date.strftime('%d %B %Y')}\n"
+            f"Position: {position['num_spreads']} * $5 spread \n"
+            f"Credit: ${position['credit']:.2f} \n"
+            f"P/L: ${position['potential_profit']:.2f}/${position['max_loss']:.2f} \n"
         )
-        output += f"Credit: $0.56 (per $5 spread)\n"
         output += "\n" if len(trades) - 1 > 2 else ""
-        
+    
     print(output)
     
     if environment == "PROD":
@@ -207,13 +264,15 @@ def main():
         # "SPY",
         # "QQQ",
     ]
+    bankroll = 10000
+
     specific_date = datetime.now().date()
     # specific_date = datetime(2024, 10, 23)
 
     for ticker_name in tickers:
         ticker = TickerData(ticker_name)
         trades = run_all_strategies(ticker, specific_date, duplicate_filter=False)
-        generate_alert(trades)
+        generate_alert(trades, bankroll)
 
 if __name__ == "__main__":
     main()
