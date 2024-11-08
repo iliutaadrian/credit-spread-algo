@@ -49,6 +49,22 @@ def save_trade_to_db(trade, status):
     conn.commit()
     conn.close()
 
+def get_trades_for_streak(check_date_str):
+    conn = create_connection()
+    cursor = conn.cursor()
+    
+    # Get trades up to check_date ordered by date descending
+    cursor.execute("""
+        SELECT date_alerted, status
+        FROM trades 
+        WHERE date_alerted <= ?
+        AND status IS NOT NULL
+        ORDER BY date_alerted DESC
+    """, (check_date_str,))
+    
+    trades = cursor.fetchall()
+    conn.close()
+    return trades
 
 def get_expired_trades(check_date_str):
     conn = create_connection()
@@ -96,17 +112,3 @@ def check_duplicate_trades(trade, date_limit_str, check_date_str):
     count = cursor.fetchone()[0]
     conn.close()
     return count
-
-def get_trades_for_streak(date_str):
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT date_alerted, status
-        FROM trades
-        WHERE status IS NOT NULL
-        AND date_alerted <= ?
-        ORDER BY date_alerted DESC
-    """, (date_str,))
-    trades = cursor.fetchall()
-    conn.close()
-    return trades
