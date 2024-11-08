@@ -1,5 +1,4 @@
 import os
-import sqlite3
 from datetime import datetime, timedelta
 import telebot
 import yfinance as yf
@@ -9,8 +8,7 @@ import pandas as pd
 
 load_dotenv()
 environment = os.environ.get("ENV")
-from db import save_trade_to_db, create_table 
-
+from db import save_trade_to_db, get_trades_for_streak
 
 class Strategy:
     def __init__(
@@ -47,16 +45,11 @@ strategies = [
 class TickerData:
     def __init__(self, ticker):
         self.ticker = ticker
-        # Download data and localize it to remove timezone information
         self.ticker_data = yf.download(ticker)
         self.ticker_data.index = self.ticker_data.index.tz_localize(None)
 
-    def get_last_price(self):
-        return self.ticker_data["Close"][-1]
-
     def get_date_price(self, date):
         try:
-            # Convert date to string format for lookup
             date_str = date.strftime("%Y-%m-%d")
             return self.ticker_data.loc[date_str]["Close"]
         except KeyError:
@@ -64,7 +57,6 @@ class TickerData:
 
     def calculate_ma_std(self, date):
         try:
-            # Convert date to string format for slicing
             date_str = date.strftime("%Y-%m-%d")
             rolling_data = self.ticker_data["Close"].loc[:date_str].rolling(window=200)
             ma = rolling_data.mean().iloc[-1]
@@ -94,7 +86,6 @@ class Trade:
         self.strike_price = strike_price
         self.status = status
 
-
 def check_strategy(ticker, specific_date, strategy):
     trades = []
     for i in range(5):
@@ -106,7 +97,6 @@ def check_strategy(ticker, specific_date, strategy):
         if current_price is None:
             continue
 
-        # Extract scalar values for comparison
         if isinstance(current_price, (pd.Series, pd.DataFrame)):
             current_price = float(current_price)
 
@@ -114,19 +104,15 @@ def check_strategy(ticker, specific_date, strategy):
         if ma is None or std is None:
             continue
 
-        # Calculate boundaries using scalar values
         upper_boundary = float(ma + strategy.deviation["up"] * std)
         lower_boundary = float(ma + strategy.deviation["down"] * std)
 
-        # Compare scalar values
         if lower_boundary <= current_price <= upper_boundary:
             strike_price = current_price * strategy.price_multiplier
             sell_strike = math.floor(strike_price/5)*5 
 
-            expiration_date = date_alerted + timedelta(
-                days=strategy.expiration_date_round
-            )
-            while expiration_date.weekday() != 4:  # 4 represents Friday
+            expiration_date = date_alerted + timedelta(days=strategy.expiration_date_round)
+            while expiration_date.weekday() != 4:  # Find next Friday
                 expiration_date += timedelta(days=1)
 
             trade = Trade(
@@ -142,12 +128,11 @@ def check_strategy(ticker, specific_date, strategy):
 
     return trades
 
+
 def run_all_strategies(ticker_data, specific_date, duplicate_filter=True):
     all_trades = []
-
     for strategy in strategies:
         trade_ideas = check_strategy(ticker_data, specific_date, strategy)
-
         if duplicate_filter:
             filtered_trade = remove_duplicates(trade_ideas, specific_date)
             if filtered_trade:
@@ -156,7 +141,6 @@ def run_all_strategies(ticker_data, specific_date, duplicate_filter=True):
             for trade_idea in trade_ideas:
                 if trade_idea.date_alerted == specific_date:
                     all_trades.append(trade_idea)
-
     return all_trades
 
 
@@ -166,9 +150,9 @@ def remove_duplicates(trades, date_limit):
         if not oldest_trade:
             oldest_trade = trade
         elif (
-            trade.expiration_date == oldest_trade.expiration_date
-            and trade.option_type == oldest_trade.option_type
-        ):
+                trade.expiration_date == oldest_trade.expiration_date
+                and trade.option_type == oldest_trade.option_type
+                ):
             initial_price = int(oldest_trade.strike_price)
             aux_price = int(trade.strike_price)
 
@@ -183,67 +167,104 @@ def remove_duplicates(trades, date_limit):
 
     return oldest_trade
 
+def get_trading_status(date_str):
+    print(date_str)
+    trades = get_trades_for_streak(date_str)
+    if not trades:
+        return False, "Active", None
+        
+    win_streak_start = None
+    for trade_date, status in trades:
+        print(trade_date, status)
+        if status is not None:
+            if status == 'loss':
+                return True, "Inactive", None
+            elif win_streak_start is None:
+                win_streak_start = trade_date
+    
+    return False, "Active", win_streak_start
 
 def calculate_optimal_position(bankroll, win_rate=92.0):
-    """
-    Calculate optimal position size and credit using Kelly Criterion
-    
-    Args:
-        bankroll (float): Current portfolio value
-        win_rate (float): Strategy win rate percentage (default 92%)
-    
-    Returns:
-        dict: Position details including spreads and credit amount
-    """
-    # Convert win rate to probability
     p = win_rate / 100
     q = 1 - p
     
-    credit = 0.50
-    win_amount = 50
-    loss_amount = 450
+    credit = 0.55
+    win_amount = credit * 100 
+    loss_amount = (5 - credit) * 100
     
-    # Calculate Kelly percentage
-    b = win_amount / loss_amount  # Odds ratio
+    b = win_amount / loss_amount
     kelly = p - (q / b)
+    kelly = max(0, kelly) * 0.7
     
-    # Use half-Kelly for safety
-    kelly = max(0, kelly) * 1
-    
-    # Calculate optimal risk amount
     optimal_risk = bankroll * kelly
-    
-    # Calculate number of spreads (rounded down)
     num_spreads = int(optimal_risk / loss_amount)
-    num_spreads = max(1, min(num_spreads, 20))  # Cap between 1 and 20 spreads
+    num_spreads = max(1, min(num_spreads, 1000))
     
     return {
         'credit': credit,
         'num_spreads': num_spreads,
-        'potential_profit': num_spreads * (credit * 100 - 1),  # Subtract commission
-        'max_loss': num_spreads * (loss_amount + 1),  # Add commission
+        'potential_profit': num_spreads * (credit * 100 - 1),
+        'max_loss': num_spreads * (loss_amount + 1),
         'risk_amount': optimal_risk,
         'risk_percentage': kelly * 100
     }
 
-def generate_alert(trades, bankroll=5000):
+def check_winning_streak(check_date_str):
     """
-    Generate trade alert with position sizing recommendations
+    Check if we should be trading based on streak status
+    Returns:
+    - (True, None) if we can trade (last trade was a win)
+    - (False, last_win_date) if we shouldn't trade (in a losing streak)
+    """
+    trades = get_trades_for_streak(check_date_str)
     
-    Args:
-        trades (list): List of trade opportunities
-        bankroll (float): Current portfolio value
+    if not trades:
+        return True, None  # No trades means we can trade
+        
+    # Get most recent trade status
+    last_trade_status = trades[0][1]  # trades[0] is most recent since ordered DESC
+    
+    # If last trade was a win, we can trade
+    if last_trade_status == 'win':
+        return True, None
+        
+    # If last trade was a loss, we need to wait
+    return False, trades[0][0]
+
+def calculate_current_year_winrate():
+    """Calculate win rate for current year"""
+    current_year = datetime.now().year
+    year_start = f"{current_year}-01-01"
+    trades = get_trades_for_streak(datetime.now().strftime('%Y-%m-%d'))
+    
+    if not trades:
+        return None
+        
+    current_year_trades = [t for t in trades if t[0].startswith(str(current_year))]
+    
+    if not current_year_trades:
+        return None
+        
+    wins = sum(1 for t in current_year_trades if t[1] == 'win')
+    total = len(current_year_trades)
+    
+    return f"Year: {(wins / total * 100):.2f}%: {wins}/{total}" if total > 0 else None
+
+def generate_alert(trades, current_year, bankroll=5000, is_active=True):
+    """
+    Generate trade alert with position sizing recommendations and active status
     """
     if not trades:
         return
         
-    # Get position sizing for the strategy
     position = calculate_optimal_position(bankroll)
     
     output = ""
     for trade in trades:
+        status = " - Active" if is_active else f" - Inactive {trade.expiration_date.strftime('%d %B %Y')}"
         output += (
-            f"{trade.ticker} - {trade.strategy_name}\n"
+            f"{trade.ticker} - {trade.strategy_name}{status}\n"
+            f"{current_year}\n"
             f"Trade: {trade.option_type} {trade.strike_price}\n"
             f"Expiration: {trade.expiration_date.strftime('%d %B %Y')}\n"
             f"Position: {position['num_spreads']} * $5 spread \n"
@@ -267,12 +288,27 @@ def main():
     bankroll = 10000
 
     specific_date = datetime.now().date()
-    # specific_date = datetime(2024, 10, 23)
+    # specific_date = datetime(2024, 7, 12)
 
+    # Get current year win rate
+    current_year_winrate = calculate_current_year_winrate()
+    
     for ticker_name in tickers:
         ticker = TickerData(ticker_name)
+        
+        # Check if we can trade based on streak
+        can_trade, last_trade_date = check_winning_streak(specific_date.strftime('%Y-%m-%d'))
+        
+        # First save filtered trades to DB
+        filtered_trades = run_all_strategies(ticker, specific_date, duplicate_filter=True)
+        if filtered_trades:
+            for trade in filtered_trades:
+                save_trade_to_db(trade, None)  # Save with null status for later update
+        
+        # Then generate alerts for all possible trades
         trades = run_all_strategies(ticker, specific_date, duplicate_filter=False)
-        generate_alert(trades, bankroll)
+        
+        generate_alert(trades, current_year_winrate, bankroll, is_active=can_trade)
 
 if __name__ == "__main__":
     main()
