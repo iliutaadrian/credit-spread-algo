@@ -194,7 +194,7 @@ def calculate_optimal_position(bankroll, win_rate=92.0):
     
     b = win_amount / loss_amount
     kelly = p - (q / b)
-    kelly = max(0, kelly) * 0.7
+    kelly = max(0, kelly) * 0.5
     
     optimal_risk = bankroll * kelly
     num_spreads = int(optimal_risk / loss_amount)
@@ -231,9 +231,8 @@ def check_winning_streak(check_date_str):
     # If last trade was a loss, we need to wait
     return False, trades[0][0]
 
-def calculate_current_year_winrate():
+def calculate_current_year_winrate(current_year=datetime.now().year):
     """Calculate win rate for current year"""
-    current_year = datetime.now().year
     year_start = f"{current_year}-01-01"
     trades = get_trades_for_streak(datetime.now().strftime('%Y-%m-%d'))
     
@@ -248,7 +247,7 @@ def calculate_current_year_winrate():
     wins = sum(1 for t in current_year_trades if t[1] == 'win')
     total = len(current_year_trades)
     
-    return f"Year: {(wins / total * 100):.2f}%: {wins}/{total}" if total > 0 else None
+    return f"Year {current_year}: {(wins / total * 100):.2f}%: {wins}/{total}" if total > 0 else None
 
 def generate_alert(trades, current_year, bankroll=5000, is_active=True):
     """
@@ -261,15 +260,14 @@ def generate_alert(trades, current_year, bankroll=5000, is_active=True):
     
     output = ""
     for trade in trades:
-        status = " - Active" if is_active else f" - Inactive {trade.expiration_date.strftime('%d %B %Y')}"
+        status = "Active" if is_active else f"Inactive {trade.expiration_date.strftime('%d %B %Y')}"
         output += (
-            f"{trade.ticker} - {trade.strategy_name}{status}\n"
-            f"{current_year}\n"
-            f"Trade: {trade.option_type} {trade.strike_price}\n"
-            f"Expiration: {trade.expiration_date.strftime('%d %B %Y')}\n"
-            f"Position: {position['num_spreads']} * $5 spread \n"
-            f"Credit: ${position['credit']:.2f} \n"
-            f"P/L: ${position['potential_profit']:.2f}/${position['max_loss']:.2f} \n"
+            f"{trade.ticker} | {trade.strategy_name} | {status}\n"
+            f"{trade.option_type.upper()} {trade.strike_price} - {trade.expiration_date.strftime('%d %B %Y')}\n"
+            f"P/L: +${position['potential_profit']:.2f}/-${position['max_loss']:.2f}\n"
+            f"Risk: ${position['risk_amount']:.2f}/{bankroll} ({position['risk_percentage']:.2f}%)\n"
+            f"Credit: ${position['credit']:.2f} × {position['num_spreads']} $5 spreads\n"
+            f"{current_year}"
         )
         output += "\n" if len(trades) - 1 > 2 else ""
     
@@ -285,13 +283,13 @@ def main():
         # "SPY",
         # "QQQ",
     ]
-    bankroll = 10000
+    bankroll = 20000
 
     specific_date = datetime.now().date()
-    # specific_date = datetime(2024, 7, 12)
+    # specific_date = datetime(2022, 10, 7)
 
     # Get current year win rate
-    current_year_winrate = calculate_current_year_winrate()
+    current_year_winrate = calculate_current_year_winrate(specific_date.year)
     
     for ticker_name in tickers:
         ticker = TickerData(ticker_name)

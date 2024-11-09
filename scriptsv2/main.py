@@ -21,16 +21,14 @@ def backtest():
     run_statistics()
     print("Backtest process completed.")
 
-def run():
-    run_strategy()
-
 def main():
     args = parse_args()
     
     if args.action == "backtest":
         backtest()
     elif args.action == "run":
-        run()
+        run_strategy()
+        print("\n")
     elif args.action == "stats":
         run_statistics()
 

@@ -148,7 +148,7 @@ def print_statistics(stats):
 
 def main():
     trades = get_all_trades()
-    stats = calculate_statistics(trades)
+    stats = calculate_statistics(trades, 20000)
     print_statistics(stats)
 
 if __name__ == "__main__":
