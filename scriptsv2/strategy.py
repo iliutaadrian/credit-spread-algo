@@ -184,6 +184,7 @@ def get_trading_status(date_str):
     
     return False, "Active", win_streak_start
 
+# kelly criterion sizing
 def calculate_optimal_position(bankroll, win_rate=92.0):
     p = win_rate / 100
     q = 1 - p
@@ -249,7 +250,7 @@ def calculate_current_year_winrate(current_year=datetime.now().year):
     
     return f"Year {current_year}: {(wins / total * 100):.2f}%: {wins}/{total}" if total > 0 else None
 
-def generate_alert(trades, current_year, bankroll=5000, is_active=True):
+def generate_alert(current_price, trades, current_year, bankroll=5000, is_active=True):
     """
     Generate trade alert with position sizing recommendations and active status
     """
@@ -260,13 +261,13 @@ def generate_alert(trades, current_year, bankroll=5000, is_active=True):
     
     output = ""
     for trade in trades:
-        status = "Active" if is_active else f"Inactive {trade.expiration_date.strftime('%d %B %Y')}"
+        status = "Active" if is_active else f"Inactive {trade.expiration_date.strftime('%d %B')}"
         output += (
-            f"{trade.ticker} | {trade.strategy_name} | {status}\n"
-            f"{trade.option_type.upper()} {trade.strike_price} - {trade.expiration_date.strftime('%d %B %Y')}\n"
-            f"P/L: +${position['potential_profit']:.2f}/-${position['max_loss']:.2f}\n"
-            f"Risk: ${position['risk_amount']:.2f}/{bankroll} ({position['risk_percentage']:.2f}%)\n"
-            f"Credit: ${position['credit']:.2f} × {position['num_spreads']} $5 spreads\n"
+            f"{trade.ticker} ${current_price:.2f} | {status}\n"
+            f"{trade.option_type.upper()} {trade.strike_price} {trade.expiration_date.strftime('%d.%m')} ({(trade.strike_price * 100 / current_price - 100):.1f}%)\n"
+            f"P/L: +${position['potential_profit']:.0f}/-${position['max_loss']:.0f}\n"
+            f"Risk: ${position['risk_amount']:.2f}/{int(bankroll/1000)}k ({position['risk_percentage']:.0f}%)\n"
+            # f"Credit: ${position['credit']:.2f} × {position['num_spreads']} $5 spreads\n"
             f"{current_year}"
         )
         output += "\n" if len(trades) - 1 > 2 else ""
@@ -286,7 +287,8 @@ def main():
     bankroll = 20000
 
     specific_date = datetime.now().date()
-    # specific_date = datetime(2022, 10, 7)
+    specific_date = datetime(2022, 10, 7)
+    specific_date = datetime(2024, 11, 25)
 
     # Get current year win rate
     current_year_winrate = calculate_current_year_winrate(specific_date.year)
@@ -306,7 +308,9 @@ def main():
         # Then generate alerts for all possible trades
         trades = run_all_strategies(ticker, specific_date, duplicate_filter=False)
         
-        generate_alert(trades, current_year_winrate, bankroll, is_active=can_trade)
+
+        current_price = ticker.get_date_price(specific_date)
+        generate_alert(current_price, trades, current_year_winrate, bankroll, is_active=can_trade)
 
 if __name__ == "__main__":
     main()
