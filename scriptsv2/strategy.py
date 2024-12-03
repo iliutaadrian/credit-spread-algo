@@ -168,7 +168,6 @@ def remove_duplicates(trades, date_limit):
     return oldest_trade
 
 def get_trading_status(date_str):
-    print(date_str)
     trades = get_trades_for_streak(date_str)
     if not trades:
         return False, "Active", None
@@ -195,7 +194,7 @@ def calculate_optimal_position(bankroll, win_rate=92.0):
     
     b = win_amount / loss_amount
     kelly = p - (q / b)
-    kelly = max(0, kelly) * 0.5
+    kelly = max(0, kelly) * 0.8
     
     optimal_risk = bankroll * kelly
     num_spreads = int(optimal_risk / loss_amount)
@@ -209,16 +208,7 @@ def calculate_optimal_position(bankroll, win_rate=92.0):
         'risk_amount': optimal_risk,
         'risk_percentage': kelly * 100
     }
-
-def check_winning_streak(check_date_str):
-    """
-    Check if we should be trading based on streak status
-    Returns:
-    - (True, None) if we can trade (last trade was a win)
-    - (False, last_win_date) if we shouldn't trade (in a losing streak)
-    """
-    trades = get_trades_for_streak(check_date_str)
-    
+def check_winning_streak(trades):
     if not trades:
         return True, None  # No trades means we can trade
         
@@ -232,10 +222,9 @@ def check_winning_streak(check_date_str):
     # If last trade was a loss, we need to wait
     return False, trades[0][0]
 
-def calculate_current_year_winrate(current_year=datetime.now().year):
+def calculate_current_year_winrate(trades, current_year=datetime.now().year):
     """Calculate win rate for current year"""
     year_start = f"{current_year}-01-01"
-    trades = get_trades_for_streak(datetime.now().strftime('%Y-%m-%d'))
     
     if not trades:
         return None
@@ -264,7 +253,7 @@ def generate_alert(current_price, trades, current_year, bankroll=5000, is_active
         status = "Active" if is_active else f"Inactive {trade.expiration_date.strftime('%d %B')}"
         output += (
             f"{trade.ticker} ${current_price:.2f} | {status}\n"
-            f"{trade.option_type.upper()} {trade.strike_price} {trade.expiration_date.strftime('%d.%m')} ({(trade.strike_price * 100 / current_price - 100):.1f}%)\n"
+            f"{trade.option_type.upper()} {trade.strike_price} {trade.expiration_date.strftime('%d %B')} ({(trade.strike_price * 100 / current_price - 100):.1f}%)\n"
             f"P/L: +${position['potential_profit']:.0f}/-${position['max_loss']:.0f}\n"
             f"Risk: ${position['risk_amount']:.2f}/{int(bankroll/1000)}k ({position['risk_percentage']:.0f}%)\n"
             # f"Credit: ${position['credit']:.2f} × {position['num_spreads']} $5 spreads\n"
@@ -280,24 +269,26 @@ def generate_alert(current_price, trades, current_year, bankroll=5000, is_active
 
 def main():
     tickers = [
-        "VTI",
+        # "VTI",
+        "IWM", 
         # "SPY",
         # "QQQ",
     ]
     bankroll = 20000
 
     specific_date = datetime.now().date()
-    specific_date = datetime(2022, 10, 7)
-    specific_date = datetime(2024, 11, 25)
+    # specific_date = datetime(2022, 10, 7)
+    # specific_date = datetime(2024, 11, 27)
 
-    # Get current year win rate
-    current_year_winrate = calculate_current_year_winrate(specific_date.year)
     
     for ticker_name in tickers:
         ticker = TickerData(ticker_name)
         
+        trades = get_trades_for_streak(ticker_name, specific_date.strftime('%Y-%m-%d'))
+        current_year_winrate = calculate_current_year_winrate(trades, specific_date.year)
+
         # Check if we can trade based on streak
-        can_trade, last_trade_date = check_winning_streak(specific_date.strftime('%Y-%m-%d'))
+        can_trade, last_trade_date = check_winning_streak(trades)
         
         # First save filtered trades to DB
         filtered_trades = run_all_strategies(ticker, specific_date, duplicate_filter=True)

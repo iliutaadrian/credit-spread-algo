@@ -36,7 +36,7 @@ def backtest_and_populate_db(ticker_data, trades):
         save_trade_to_db(trade, status)
 
 def populate_historical_trades():
-    tickers = ["VTI"]
+    tickers = ["IWM", "VTI", "QQQ", "SPY"]
     end_date = datetime.now().date()
     start_date = end_date - timedelta(days=9000)
 
@@ -52,9 +52,6 @@ def populate_historical_trades():
                 all_trades.extend(trades)
             current_date += timedelta(days=1)
 
-            # Print progress every 100 days
-            if current_date.day % 100 == 0:
-                print(f"Processed up to {current_date.strftime('%Y-%m-%d')}")
 
         if all_trades:  # Only process if we have trades
             print(f"Found {len(all_trades)} trades for {ticker_symbol}")

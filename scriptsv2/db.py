@@ -27,10 +27,10 @@ def create_table():
     conn.commit()
     conn.close()
 
-def get_all_trades():
+def get_all_trades(ticker_list):
     conn = create_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM trades')
+    cursor.execute('SELECT * FROM trades WHERE ticker IN ({})'.format(','.join('?' * len(ticker_list))), ticker_list)
     trades = cursor.fetchall()
     conn.close()
     return trades
@@ -49,7 +49,7 @@ def save_trade_to_db(trade, status):
     conn.commit()
     conn.close()
 
-def get_trades_for_streak(check_date_str):
+def get_trades_for_streak(ticker, check_date_str):
     conn = create_connection()
     cursor = conn.cursor()
     
@@ -58,9 +58,10 @@ def get_trades_for_streak(check_date_str):
         SELECT date_alerted, status
         FROM trades 
         WHERE date_alerted <= ?
-        AND status IS NOT NULL
+        AND status IS NOT NULL 
+        AND ticker = ?
         ORDER BY date_alerted DESC
-    """, (check_date_str,))
+    """, (check_date_str, ticker))
     
     trades = cursor.fetchall()
     conn.close()

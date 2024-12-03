@@ -7,26 +7,24 @@ from db import get_all_trades
 from strategy import calculate_optimal_position
 
 def calculate_yearly_stats(trades, initial_capital=5000):
-    """Calculate yearly statistics with Kelly position sizing and skip-after-loss logic"""
     yearly_stats = defaultdict(lambda: {
         'trades': 0, 'wins': 0, 'losses': 0, 
         'net_return': 0, 'skipped_trades': 0
     })
     
     running_capital = initial_capital
-    waiting_for_win = False  # Flag to track if we're waiting for a win
+    waiting_for_win = False
     
     for trade in trades:
         year = datetime.strptime(trade[4], '%Y-%m-%d').strftime('%Y')
         
         if waiting_for_win:
             if trade[8] == 'win':
-                waiting_for_win = False  # Reset the flag on a win
+                waiting_for_win = False
             else:
                 yearly_stats[year]['skipped_trades'] += 1
-                continue  # Skip this trade
+                continue
                 
-        # Calculate position size based on current capital
         position = calculate_optimal_position(running_capital)
         yearly_stats[year]['trades'] += 1
         
@@ -40,12 +38,10 @@ def calculate_yearly_stats(trades, initial_capital=5000):
             loss = position['max_loss']
             yearly_stats[year]['net_return'] -= loss
             running_capital -= loss
-            waiting_for_win = True  # Set the flag after a loss
+            waiting_for_win = True
         
-        # Store end-of-year capital
         yearly_stats[year]['year_end_capital'] = running_capital
     
-    # Calculate win rates and other metrics
     for year_stats in yearly_stats.values():
         total_actual_trades = year_stats['wins'] + year_stats['losses']
         year_stats['win_rate'] = (year_stats['wins'] / total_actual_trades * 100) \
@@ -55,40 +51,12 @@ def calculate_yearly_stats(trades, initial_capital=5000):
     return yearly_stats, running_capital
 
 def calculate_statistics(trades, initial_capital=5000):
-    """Calculate statistics with Kelly position sizing and skip-after-loss logic"""
-    # Calculate yearly stats and final capital
     yearly_stats, final_capital = calculate_yearly_stats(trades, initial_capital)
     
-    # Calculate overall statistics
     total_trades = sum(year['trades'] for year in yearly_stats.values())
     total_wins = sum(year['wins'] for year in yearly_stats.values())
     total_skipped = sum(year['skipped_trades'] for year in yearly_stats.values())
     win_rate = (total_wins / total_trades * 100) if total_trades > 0 else 0
-    
-    # Calculate max drawdown with skip-after-loss logic
-    peak_capital = initial_capital
-    max_drawdown = 0
-    running_capital = initial_capital
-    waiting_for_win = False
-    
-    for trade in trades:
-        if waiting_for_win:
-            if trade[8] == 'win':
-                waiting_for_win = False
-            else:
-                continue
-                
-        position = calculate_optimal_position(running_capital)
-        
-        if trade[8] == 'win':
-            running_capital += position['potential_profit']
-        else:
-            running_capital -= position['max_loss']
-            waiting_for_win = True
-            
-        peak_capital = max(peak_capital, running_capital)
-        drawdown = peak_capital - running_capital
-        max_drawdown = max(max_drawdown, drawdown)
     
     return {
         'total_trades': total_trades,
@@ -99,13 +67,10 @@ def calculate_statistics(trades, initial_capital=5000):
         'initial_capital': initial_capital,
         'final_capital': final_capital,
         'total_return_pct': ((final_capital - initial_capital) / initial_capital) * 100,
-        'max_drawdown': max_drawdown,
-        'max_drawdown_pct': (max_drawdown / peak_capital) * 100 if peak_capital > 0 else 0,
         'current_optimal_position': calculate_optimal_position(final_capital)
     }
 
 def print_statistics(stats):
-    """Print statistics with skip-after-loss details"""
     print("\n=== Trading Performance Summary ===")
     print(f"Total Trades Taken: {stats['total_trades']}")
     print(f"Total Trades Skipped: {stats['total_skipped']}")
@@ -116,7 +81,6 @@ def print_statistics(stats):
     print(f"Initial Capital: ${stats['initial_capital']:,.2f}")
     print(f"Final Capital: ${stats['final_capital']:,.2f}")
     print(f"Total Return: {stats['total_return_pct']:.1f}%")
-    print(f"Maximum Drawdown: ${stats['max_drawdown']:,.2f} ({stats['max_drawdown_pct']:.1f}%)")
     
     print("\n=== Yearly Performance ===")
     print("Year\t\tTrades\tSkipped\tWin Rate\tCapital\t\tYearly Change")
@@ -147,7 +111,7 @@ def print_statistics(stats):
     print(f"Potential Profit: ${current_position['potential_profit']:,.2f}")
 
 def main():
-    trades = get_all_trades()
+    trades = get_all_trades(["IWM"])
     stats = calculate_statistics(trades, 20000)
     print_statistics(stats)
 
