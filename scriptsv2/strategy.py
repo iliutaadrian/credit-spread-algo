@@ -51,7 +51,7 @@ class TickerData:
     def get_date_price(self, date):
         try:
             date_str = date.strftime("%Y-%m-%d")
-            return self.ticker_data.loc[date_str]["Close"]
+            return float(self.ticker_data.loc[date_str]["Close"])
         except KeyError:
             return None
 
