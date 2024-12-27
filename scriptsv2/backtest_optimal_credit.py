@@ -36,7 +36,7 @@ def backtest_parameters(initial_capital=20000):
     kelly_fractions = np.arange(0.3, 0.85, 0.05)
     
     # Get historical trades
-    trades = get_all_trades(["IWM"])
+    trades = get_all_trades(["SPY"])[-300:]
 
     results = []
     

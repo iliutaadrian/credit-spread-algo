@@ -271,7 +271,7 @@ def main():
     tickers = [
         # "VTI",
         "IWM", 
-        # "SPY",
+        "SPY",
         # "QQQ",
     ]
     bankroll = 20000

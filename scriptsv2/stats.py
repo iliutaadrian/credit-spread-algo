@@ -111,7 +111,7 @@ def print_statistics(stats):
     print(f"Potential Profit: ${current_position['potential_profit']:,.2f}")
 
 def main():
-    trades = get_all_trades(["IWM"])
+    trades = get_all_trades(["VTI"])[-300:]
     stats = calculate_statistics(trades, 20000)
     print_statistics(stats)
 

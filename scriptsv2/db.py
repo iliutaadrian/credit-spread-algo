@@ -38,6 +38,27 @@ def get_all_trades(ticker_list):
 def save_trade_to_db(trade, status):
     conn = create_connection()
     cursor = conn.cursor()
+    
+    # First check if trade already exists
+    cursor.execute('''
+    SELECT id FROM trades 
+    WHERE ticker = ? 
+    AND strategy_name = ? 
+    AND expiration_date = ? 
+    AND option_type = ? 
+    AND strike_price = ?
+    ''', (trade.ticker, trade.strategy_name, 
+          trade.expiration_date.strftime('%Y-%m-%d'),
+          trade.option_type, trade.strike_price))
+    
+    existing_trade = cursor.fetchone()
+    
+    if existing_trade:
+        # Trade already exists, don't insert
+        conn.close()
+        return False
+        
+    # Trade doesn't exist, proceed with insert
     cursor.execute('''
     INSERT INTO trades (ticker, strategy_name, current_price, date_alerted, 
                        expiration_date, option_type, strike_price, status)
@@ -46,8 +67,10 @@ def save_trade_to_db(trade, status):
           trade.date_alerted.strftime('%Y-%m-%d'), 
           trade.expiration_date.strftime('%Y-%m-%d'),
           trade.option_type, trade.strike_price, status))
+    
     conn.commit()
     conn.close()
+    return True
 
 def get_trades_for_streak(ticker, check_date_str):
     conn = create_connection()
