@@ -31,7 +31,7 @@ strategies = [
         "put",
         {"up": 3.5, "down": -5},
         0.98,
-        8,
+        6,
     ),
     # Strategy(
     #     "LUX Trend Up",
@@ -194,7 +194,7 @@ def calculate_optimal_position(bankroll, win_rate=92.0):
     
     b = win_amount / loss_amount
     kelly = p - (q / b)
-    kelly = max(0, kelly) * 0.8
+    kelly = max(0, kelly) * 0.3
     
     optimal_risk = bankroll * kelly
     num_spreads = int(optimal_risk / loss_amount)
@@ -270,7 +270,7 @@ def generate_alert(current_price, trades, current_year, bankroll=5000, is_active
 def main():
     tickers = [
         # "VTI",
-        "IWM", 
+        # "IWM", 
         "SPY",
         # "QQQ",
     ]

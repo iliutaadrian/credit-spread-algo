@@ -35,7 +35,7 @@ def calculate_yearly_stats(trades, initial_capital=5000):
             running_capital += profit
         else:
             yearly_stats[year]['losses'] += 1
-            loss = position['max_loss']
+            loss = position['max_loss']/2
             yearly_stats[year]['net_return'] -= loss
             running_capital -= loss
             waiting_for_win = True
@@ -111,7 +111,7 @@ def print_statistics(stats):
     print(f"Potential Profit: ${current_position['potential_profit']:,.2f}")
 
 def main():
-    trades = get_all_trades(["VTI"])[-300:]
+    trades = get_all_trades(["SPY"])[-300:]
     stats = calculate_statistics(trades, 20000)
     print_statistics(stats)
 
